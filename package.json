@@ -1,0 +1,39 @@
+{
+  "name": "microchip",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
+  "bin": {
+    "build-microchip": "./bin/build-microchip.js"
+  },
+  "scripts": {
+    "clean": "del-cli ./lib",
+    "build": "npm run clean && tsc -p ./tsconfig.json",
+    "prepack": "npm run build",
+    "test": "node --experimental-strip-types --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevenagoodman/digital-breadboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/stevenagoodman/digital-breadboard/issues"
+  },
+  "homepage": "https://github.com/stevenagoodman/digital-breadboard#readme",
+  "devDependencies": {
+    "@types/node": "^24.0.13",
+    "del-cli": "^6.0.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "error-stack-parser": "^2.1.4"
+  }
+}
