@@ -1,13 +1,3 @@
-import * as Microchip from "../../src/index";
-
-/**
- * Import requirements for usage:
- *  - Signal class
- *  - nand, and, or, nor gate functions
- *  - registerChip function
- */
-
-/** Sample chip! */
 function srLatch(s: Microchip.Signal, r: Microchip.Signal) {
   const q = new Microchip.Signal();
   const qNot = new Microchip.Signal();
@@ -30,11 +20,8 @@ function xor(a: Microchip.Signal, b: Microchip.Signal): Microchip.Signal {
   return Microchip.and(Microchip.nand(a, b), Microchip.or(a, b));
 }
 
-/**
- * Entry point,
- */
-function main(a: Microchip.Signal, b: Microchip.Signal): Microchip.Signal[] {
-  const [q, qNot] = srLatch(xor(a, b), new Microchip.Signal());
+function wack(a: Microchip.Signal, b: Microchip.Signal): Microchip.Signal[] {
+  const [q, qNot] = srLatch(xor(a, b), Microchip.registerSignal());
   Microchip.registerChip({
     name: "Main",
     callback: main,
@@ -44,4 +31,4 @@ function main(a: Microchip.Signal, b: Microchip.Signal): Microchip.Signal[] {
   return [q, qNot];
 }
 
-export default main;
+export default wack;

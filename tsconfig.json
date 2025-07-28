@@ -14,7 +14,8 @@
     "allowJs": true,
     "declaration": true,
     "declarationMap": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "paths": {"@/*": ["./*"]}
   },
   "files": ["./src/index.ts"]
 }
