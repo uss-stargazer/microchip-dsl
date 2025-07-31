@@ -148,11 +148,11 @@ describe("Code parsing mechanism", () => {
       });
       assert.throws(containerChip);
     });
-
-    it("should annotate inputs and outputs with new instance", () => {
-      assert.fail();
-    });
   });
+
+  describe("Intermediate parsing" () => {
+    
+  })
 
   it("should return correct results", async () => {
     const state = await Target.parse("@/misc/goals/goal0.ts");

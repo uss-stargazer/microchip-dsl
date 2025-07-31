@@ -1,3 +1,5 @@
+import { registerSignal, registerChip, Signal } from "../../src_old";
+
 function srLatch(s: Microchip.Signal, r: Microchip.Signal) {
   const q = new Microchip.Signal();
   const qNot = new Microchip.Signal();

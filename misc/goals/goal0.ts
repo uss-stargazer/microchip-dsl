@@ -1,4 +1,4 @@
-import { registerSignal, registerChip, Signal } from "../../src";
+import { registerSignal, registerChip, Signal } from "../../src_old";
 
 function main(a: Signal, b: Signal): [Signal, Signal] {
   registerChip({

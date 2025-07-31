@@ -1,133 +1,113 @@
-import * as Parse from "./parse.js";
+import * as ErrorStackParser from "error-stack-parser";
 
-export { Signal } from "./parse.js";
+import Signal from "./signal";
+import {
+  Component,
+  ComponentId,
+  ComponentStyle,
+  getComponentIdsFromStack,
+} from "./utils";
 
-export function not(a: Parse.Signal): Parse.Signal {
-  const notComponentId: Parse.ComponentId = {
-    function: "not",
-    file: import.meta.filename,
-  };
+// Ignore this; only for testing purposes
+export const TEST_SETTINGS = {
+  overrideParseCheck: false,
+};
 
-  // Add to component registry
-  if (!Parse.intermediateState.componentRegistry.has(notComponentId)) {
-    Parse.intermediateState.componentRegistry.set(notComponentId, {
-      nInputs: 1,
-      nOutputs: 1,
-      style: {},
+type ComponentFunction = (...inputs: Signal[]) => void | Signal | Signal[];
+interface ComponentInfo {
+  function: ComponentFunction;
+  style?: Partial<ComponentStyle>;
+}
+
+//-------------------------------------------
+// Main class
+//-------------------------------------------
+
+export default class Microchip {
+  private entryComponent: ComponentId;
+  private componentRegistry: Map<ComponentId, Component>;
+
+  private nullWriting: boolean = false; // Part of a hacky hack to get the nOutputs by running the function without any elements doing anythin
+
+  public __getState(): {
+    entryComponent: ComponentId;
+    componentRegistry: Map<ComponentId, Component>;
+  } {
+    return {
+      entryComponent: this.entryComponent,
+      componentRegistry: this.componentRegistry,
+    };
+  }
+
+  public components: Map<ComponentFunction, ComponentFunction>;
+
+  /**
+   * This method parses individual components to `state` and adds a "decorated" method to this class
+   */
+  public registerComponents(...funcs: ComponentInfo[]) {
+    funcs.forEach((component: ComponentInfo) => {
+      if (this.componentRegistry.has(component.function.name)) {
+        throw new Error(
+          `Cannot register the same component twice: ${component.function.name} function already registered`
+        );
+      }
+
+      // Parse component to state
+      const nInputs = component.function.length;
+
+      // Hacky hack to get the n of ouputs by running the function with null
+      this.nullWriting = true;
+      const nOutputs = component.function();
+      this.nullWriting = false;
+
+      const componentRegistryInfo: Component = {
+        nInputs: nInputs,
+        nOutputs: 0, // Default output n until we can determine size of output array
+        state: { components: [], connections: new Set() },
+        style: { ...component.style },
+      };
+      this.componentRegistry.set(
+        component.function.name,
+        componentRegistryInfo
+      );
+      // We run the function which should add to the registry object's state at runtime
+      const output = component.function(
+        ...Array.from({ length: nInputs }, (): Signal => {
+          return { component: -1, pin: -1 };
+        })
+      );
+
+      // Create mock method
+      this.components.set(
+        component.function,
+        (...inputs: Signal[]): void | Signal | Signal[] => {
+          const parentComponentId = getComponentIdsFromStack()[1];
+          const parentRegistryComponent =
+            this.componentRegistry.get(parentComponentId);
+          if (!parentRegistryComponent) {
+            throw new Error(
+              `Error finding componentId ${parentComponentId} from error stack parsing`
+            );
+          }
+          const componentIndex =
+            parentRegistryComponent.state.components.push() - 1;
+
+          inputs.forEach((signal: Signal, idx: number) => {
+            if (!this.nullWriting)
+              parentRegistryComponent.state.connections.add({
+                sourceComponentIndex: signal.component,
+                outputIndex: signal.pin,
+                destinationComponentIndex: componentIndex,
+                inputIndex: idx,
+              });
+          });
+        }
+      );
     });
   }
 
-  // Add specific instance to components array
-  const componentIndex = Parse.intermediateState.components.length;
-  Parse.intermediateState.components.push({
-    self: not,
-    parent: not.caller,
-  });
-  // Annotate input Parse.signal
-  a._addDestinationComponent({ componentIndex: componentIndex, inputIndex: 0 });
-  // Create and annotate return Parse.signal
-  const s = new Parse.Signal();
-  s._setSourceComponent({ componentIndex: componentIndex, outputIndex: 0 });
-  Parse.intermediateState.Parse.signals.push(s);
-  return s;
-}
-
-export function nand(a: Parse.Signal, b: Parse.Signal): Parse.Signal {
-  "use strict";
-  // Add to component registry
-  if (!Parse.intermediateState.componentRegistry.has(nand))
-    Parse.intermediateState.componentRegistry.set(nand, {
-      nInputs: 2,
-      nOutputs: 1,
-      style: {},
-    });
-  // Add specific instance to components array
-  const componentIndex = Parse.intermediateState.components.length;
-  Parse.intermediateState.components.push({
-    self: nand,
-    parent: nand.caller,
-  });
-  // Annotate input Parse.signals
-  a._addDestinationComponent({ componentIndex: componentIndex, inputIndex: 0 });
-  b._addDestinationComponent({ componentIndex: componentIndex, inputIndex: 1 });
-  // Create and annotate return Parse.signal
-  const s = new Parse.Signal();
-  s._setSourceComponent({ componentIndex: componentIndex, outputIndex: 0 });
-  Parse.intermediateState.Parse.signals.push(s);
-  return s;
-}
-
-export function and(a: Parse.Signal, b: Parse.Signal): Parse.Signal {
-  "use strict";
-  // Add to component registry
-  if (!Parse.intermediateState.componentRegistry.has(and))
-    Parse.intermediateState.componentRegistry.set(and, {
-      nInputs: 2,
-      nOutputs: 1,
-      style: {},
-    });
-  // Add specific instance to components array
-  const componentIndex = Parse.intermediateState.components.length;
-  Parse.intermediateState.components.push({
-    self: and,
-    parent: and.caller,
-  });
-  // Annotate input Parse.signals
-  a._addDestinationComponent({ componentIndex: componentIndex, inputIndex: 0 });
-  b._addDestinationComponent({ componentIndex: componentIndex, inputIndex: 1 });
-  // Create and annotate return Parse.signal
-  const s = new Parse.Signal();
-  s._setSourceComponent({ componentIndex: componentIndex, outputIndex: 0 });
-  Parse.intermediateState.Parse.signals.push(s);
-  return s;
-}
-
-export function or(a: Parse.Signal, b: Parse.Signal): Parse.Signal {
-  "use strict";
-  // Add to component registry
-  if (!Parse.intermediateState.componentRegistry.has(or))
-    Parse.intermediateState.componentRegistry.set(or, {
-      nInputs: 2,
-      nOutputs: 1,
-      style: {},
-    });
-  // Add specific instance to components array
-  const componentIndex = Parse.intermediateState.components.length;
-  Parse.intermediateState.components.push({
-    self: or,
-    parent: or.caller,
-  });
-  // Annotate input Parse.signals
-  a._addDestinationComponent({ componentIndex: componentIndex, inputIndex: 0 });
-  b._addDestinationComponent({ componentIndex: componentIndex, inputIndex: 1 });
-  // Create and annotate return Parse.signal
-  const s = new Parse.Signal();
-  s._setSourceComponent({ componentIndex: componentIndex, outputIndex: 0 });
-  Parse.intermediateState.Parse.signals.push(s);
-  return s;
-}
-
-export function nor(a: Parse.Signal, b: Parse.Signal): Parse.Signal {
-  "use strict";
-  // Add to component registry
-  if (!Parse.intermediateState.componentRegistry.has(nor))
-    Parse.intermediateState.componentRegistry.set(nor, {
-      nInputs: 2,
-      nOutputs: 1,
-      style: {},
-    });
-  // Add specific instance to components array
-  const componentIndex = Parse.intermediateState.components.length;
-  Parse.intermediateState.components.push({
-    self: nor,
-    parent: nor.caller,
-  });
-  // Annotate input Parse.signals
-  a._addDestinationComponent({ componentIndex: componentIndex, inputIndex: 0 });
-  b._addDestinationComponent({ componentIndex: componentIndex, inputIndex: 1 });
-  // Create and annotate return Parse.signal
-  const s = new Parse.Signal();
-  s._setSourceComponent({ componentIndex: componentIndex, outputIndex: 0 });
-  Parse.intermediateState.Parse.signals.push(s);
-  return s;
+  /**
+   *
+   */
+  public setEntryComponent(component: ComponentFunction) {}
 }

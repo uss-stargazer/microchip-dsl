@@ -17,5 +17,5 @@
     "allowSyntheticDefaultImports": true,
     "paths": {"@/*": ["./*"]}
   },
-  "files": ["./src/index.ts"]
+  "files": ["src_old/index.ts"]
 }
