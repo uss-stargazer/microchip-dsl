@@ -13,7 +13,7 @@ export const TEST_SETTINGS = {
   overrideParseCheck: false,
 };
 
-type ComponentFunction = (...inputs: Signal[]) => void | Signal | Signal[];
+type ComponentFunction = (...inputs: Signal[]) => Signal[];
 interface ComponentInfo {
   function: ComponentFunction;
   style?: Partial<ComponentStyle>;
@@ -57,12 +57,12 @@ export default class Microchip {
 
       // Hacky hack to get the n of ouputs by running the function with null
       this.nullWriting = true;
-      const nOutputs = component.function();
+      const nOutputs = component.function().length;
       this.nullWriting = false;
 
       const componentRegistryInfo: Component = {
         nInputs: nInputs,
-        nOutputs: 0, // Default output n until we can determine size of output array
+        nOutputs: nOutputs, 
         state: { components: [], connections: new Set() },
         style: { ...component.style },
       };
@@ -80,7 +80,7 @@ export default class Microchip {
       // Create mock method
       this.components.set(
         component.function,
-        (...inputs: Signal[]): void | Signal | Signal[] => {
+        (...inputs: Signal[]):  Signal[] => {
           const parentComponentId = getComponentIdsFromStack()[1];
           const parentRegistryComponent =
             this.componentRegistry.get(parentComponentId);
@@ -101,6 +101,9 @@ export default class Microchip {
                 inputIndex: idx,
               });
           });
+
+          outputs = Array.from({length: parentRegistryComponent.nOutputs}, (_, idx: number): Signal => {return {component: componentIndex, pin: idx}}
+          )
         }
       );
     });
