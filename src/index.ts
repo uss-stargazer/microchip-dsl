@@ -24,7 +24,7 @@ interface ComponentInfo {
 //-------------------------------------------
 
 export default class Microchip {
-  private entryComponent: ComponentId;
+  private entryComponent: ComponentId | undefined;
   private componentRegistry: Map<ComponentId, Component>;
 
   private nullWriting: boolean = false; // Part of a hacky hack to get the nOutputs by running the function without any elements doing anythin
@@ -62,7 +62,7 @@ export default class Microchip {
 
       const componentRegistryInfo: Component = {
         nInputs: nInputs,
-        nOutputs: nOutputs, 
+        nOutputs: nOutputs,
         state: { components: [], connections: new Set() },
         style: { ...component.style },
       };
@@ -71,16 +71,25 @@ export default class Microchip {
         componentRegistryInfo
       );
       // We run the function which should add to the registry object's state at runtime
-      const output = component.function(
-        ...Array.from({ length: nInputs }, (): Signal => {
-          return { component: -1, pin: -1 };
-        })
-      );
+      component
+        .function(
+          ...Array.from({ length: nInputs }, (_, idx: number): Signal => {
+            return { component: -1, pin: idx }; // Component index -1 signifies chip inputs
+          })
+        )
+        .forEach((output: Signal, idx: number) => {
+          componentRegistryInfo.state.connections.add({
+            sourceComponentIndex: output.component,
+            outputIndex: output.pin,
+            destinationComponentIndex: -2, // Component index -2 signifies chip inputs
+            inputIndex: idx,
+          });
+        });
 
       // Create mock method
       this.components.set(
         component.function,
-        (...inputs: Signal[]):  Signal[] => {
+        (...inputs: Signal[]): Signal[] => {
           const parentComponentId = getComponentIdsFromStack()[1];
           const parentRegistryComponent =
             this.componentRegistry.get(parentComponentId);
@@ -102,8 +111,12 @@ export default class Microchip {
               });
           });
 
-          outputs = Array.from({length: parentRegistryComponent.nOutputs}, (_, idx: number): Signal => {return {component: componentIndex, pin: idx}}
-          )
+          return Array.from(
+            { length: parentRegistryComponent.nOutputs },
+            (_, idx: number): Signal => {
+              return { component: componentIndex, pin: idx };
+            }
+          );
         }
       );
     });

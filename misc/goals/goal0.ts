@@ -1,15 +1,11 @@
-import { registerSignal, registerChip, Signal } from "../../src_old";
+import Microchip from "../../src";
+import Signal from "../../src/signal";
+
+const microchip = new Microchip();
+microchip.registerComponents({ function: main }, {});
 
 function main(a: Signal, b: Signal): [Signal, Signal] {
-  registerChip({
-    style: {
-      name: "The very cool Mr. Fox",
-      inputNames: ["Joe ;D", "(￣y▽￣)╭ Ohohoho....."],
-      outputNames: ["(┬┬﹏┬┬)", "Johnny"],
-      color: "blue",
-    },
-  });
   return [b, a];
 }
 
-export default main;
+export default microchip;
