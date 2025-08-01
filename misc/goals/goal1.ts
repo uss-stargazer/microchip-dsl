@@ -1,36 +1,31 @@
-import { registerSignal, registerChip, Signal } from "../../src_old";
+import Microchip from "../../src";
+import Signal from "../../src/signal";
+import { nullSignal, copySignal } from "../../src/signal";
+import { nand, and, or } from "../../src/gates";
 
-function srLatch(s: Microchip.Signal, r: Microchip.Signal) {
-  const q = new Microchip.Signal();
-  const qNot = new Microchip.Signal();
-  [s, r] = Microchip.registerChip({
-    name: "SR Latch",
-    inputs: [s, r],
-    outputs: [q, qNot],
-    inputNames: ["Set", "Reset"],
-    outputNames: ["Q", "~Q😊☆*: .｡. o(≧▽≦)o .｡.:*☆"],
-  });
+Microchip.prototype.afd = function (): string {
+  return `Hello from ${this.name}!`;
+};
 
-  q.setSourceSignal(Microchip.nand(s, qNot));
-  qNot.setSourceSignal(Microchip.nand(r, q));
+const microchip = new Microchip();
+microchip.registerComponents(nand, and, or, srLatch, xor, wack);
 
-  return [q, qNot];
+function srLatch(s: [Signal], r: [Signal]): [Signal, Signal] {
+  const q = nullSignal();
+  const qNot = nullSignal();
+
+  copySignal(microchip.components.get(nand)!(s, qNot), q);
+  copySignal(nand(r, q), qNot);
+
+  return [...q, ...qNot];
 }
 
-function xor(a: Microchip.Signal, b: Microchip.Signal): Microchip.Signal {
-  Microchip.registerChip({});
-  return Microchip.and(Microchip.nand(a, b), Microchip.or(a, b));
+function xor(a: [Signal], b: [Signal]): [Signal] {
+  return and(nand(a, b), or(a, b));
 }
 
-function wack(a: Microchip.Signal, b: Microchip.Signal): Microchip.Signal[] {
-  const [q, qNot] = srLatch(xor(a, b), Microchip.registerSignal());
-  Microchip.registerChip({
-    name: "Main",
-    callback: main,
-    inputs: [a, b],
-    outputs: [q, qNot],
-  });
-  return [q, qNot];
+function wack(a: [Signal], b: [Signal]): [Signal, Signal] {
+  return srLatch(xor(a, b), nullSignal());
 }
 
 export default wack;

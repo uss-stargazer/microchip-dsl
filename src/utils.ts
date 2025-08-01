@@ -28,21 +28,6 @@ export interface ComponentStyle {
     | "gray";
 }
 
-export interface Component {
-  nInputs: number;
-  nOutputs: number;
-  state: {
-    components: ComponentId[];
-    connections: Set<{
-      sourceComponentIndex: number | null; // Null represents an input of the component this interface represents
-      outputIndex: number;
-      destinationComponentIndex: number | null; // Null represents an ouput of the component this interface represents
-      inputIndex: number;
-    }>;
-  };
-  style: Partial<ComponentStyle>;
-}
-
 export function resolveImportToPath(importStr: string): string {
   return import.meta
     .resolve(importStr)

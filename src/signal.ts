@@ -9,6 +9,15 @@ import { ComponentIndex, ComponentPinIndex } from "./utils";
  * A signal without a source can exist; it represents an always-zero signal.
  */
 export default interface Signal {
-  component: ComponentIndex;
-  pin: ComponentPinIndex; // Either the input or output pin index, depending on context
+  component: ComponentIndex | null;
+  pin: ComponentPinIndex | null; // Either the input or output pin index, depending on context
+}
+
+export function nullSignal(): [Signal] {
+  return [{ component: null, pin: null }];
+}
+
+export function copySignal(from: [Signal], to: [Signal]) {
+  to[0].component = from[0].component;
+  to[0].pin = from[0].pin;
 }
