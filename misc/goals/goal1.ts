@@ -3,25 +3,25 @@ import Signal from "../../src/signal";
 import { nullSignal, copySignal } from "../../src/signal";
 import { nand, and, or } from "../../src/gates";
 
-Microchip.prototype.afd = function (): string {
+Microchip.prototype["afd"] = function (): string {
   return `Hello from ${this.name}!`;
 };
 
-const microchip = new Microchip();
-microchip.registerComponents(nand, and, or, srLatch, xor, wack);
+const chip = new Microchip();
+chip.registerComponents(nand, and, or, srLatch, xor, wack);
 
 function srLatch(s: [Signal], r: [Signal]): [Signal, Signal] {
   const q = nullSignal();
   const qNot = nullSignal();
 
-  copySignal(microchip.components.get(nand)!(s, qNot), q);
-  copySignal(nand(r, q), qNot);
+  copySignal(chip["nand"](s, qNot), q);
+  copySignal(chip["nand"](r, q), qNot);
 
   return [...q, ...qNot];
 }
 
 function xor(a: [Signal], b: [Signal]): [Signal] {
-  return and(nand(a, b), or(a, b));
+  return and(chip["nand"](a, b), or(a, b));
 }
 
 function wack(a: [Signal], b: [Signal]): [Signal, Signal] {
