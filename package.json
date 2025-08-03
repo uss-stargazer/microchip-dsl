@@ -14,7 +14,8 @@
     "clean": "del-cli ./lib",
     "build": "npm run clean && tsc -p ./tsconfig.json",
     "prepack": "npm run build",
-    "test": "node --test"
+    "test": "node --test",
+    "generate": "node ./bin/build-microchip.js ./misc/goals/goal2.ts"
   },
   "repository": {
     "type": "git",
