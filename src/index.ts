@@ -1,21 +1,11 @@
-import * as ErrorStackParser from "error-stack-parser";
-
-import Signal from "./signal";
+import Signal from "./signal.js";
 import {
   ComponentId,
   ComponentStyle,
   getComponentIdsFromStack,
-  Tuple,
-} from "./utils";
+} from "./utils.js";
 
-// Ignore this; only for testing purposes
-export const TEST_SETTINGS = {
-  overrideParseCheck: false,
-};
-
-type ComponentFunction = (
-  ...inputs: Signal[]
-) => Signal[];
+type ComponentFunction = (...inputs: Signal[]) => Signal[];
 
 export interface Component {
   nInputs: number;
@@ -29,6 +19,14 @@ export interface Component {
     }>;
   };
   style: Partial<ComponentStyle>;
+}
+
+type GateId = "nand" | "and" | "or" | "nor";
+type GateFunction = (a: Signal, b: Signal) => [Signal];
+
+export interface MicrochipState {
+  entryComponent: ComponentId;
+  componentRegistry: Map<ComponentId, Component>;
 }
 
 //-------------------------------------------
@@ -45,9 +43,16 @@ export default class Microchip {
     this.componentRegistry = new Map();
   }
 
-  /**
-   * This method parses individual components to `state` and adds a "decorated" method to this class
-   */
+  public _getState(): MicrochipState {
+    if (!this.entryComponent) {
+      throw new Error("Cannot get state with an undefined entry component");
+    }
+    return {
+      entryComponent: this.entryComponent,
+      componentRegistry: this.componentRegistry,
+    };
+  }
+
   public registerComponent<T extends ComponentFunction>(
     name: ComponentId,
     func: T,
@@ -75,7 +80,7 @@ export default class Microchip {
     // We run the function which should add to the registry object's state at runtime
     func(
       ...Array.from({ length: nInputs }, (_, idx: number): Signal => {
-        return [{ component: -1, pin: idx }]; // Component index -1 signifies chip inputs
+        return { component: -1, pin: idx }; // Component index -1 signifies chip inputs
       })
     ).forEach((output: Signal, idx: number) => {
       componentRegistryInfo.state.connections.add({
@@ -96,7 +101,7 @@ export default class Microchip {
         );
       }
       const componentIndex =
-        parentRegistryComponent.state.components.push() - 1;
+        parentRegistryComponent.state.components.push(name) - 1;
 
       inputs.forEach((input: Signal, idx: number) => {
         if (!this.nullWriting)
@@ -110,15 +115,54 @@ export default class Microchip {
       return Array.from(
         { length: parentRegistryComponent.nOutputs },
         (_, idx: number): Signal => {
-          return [{ component: componentIndex, pin: idx }];
+          return { component: componentIndex, pin: idx };
         }
       );
-    } as unknown as T);
+    }) as T;
   }
 
-  /**
-   * Set
-   */
+  public registerGate(
+    name: GateId,
+    style?: Partial<ComponentStyle>
+  ): GateFunction {
+    if (this.componentRegistry.has(name)) {
+      throw new Error(`Cannot register the same gate twice: ${name}`);
+    }
+
+    const componentRegistryInfo: Component = {
+      nInputs: 2,
+      nOutputs: 1,
+      state: { components: [], connections: new Set() }, // Null state
+      style: { ...style },
+    };
+    this.componentRegistry.set(name, componentRegistryInfo);
+
+    // Create mock method
+    return (a: Signal, b: Signal): [Signal] => {
+      const parentComponentId = getComponentIdsFromStack()[1];
+      const parentRegistryComponent =
+        this.componentRegistry.get(parentComponentId);
+      if (!parentRegistryComponent) {
+        throw new Error(
+          `Error finding componentId ${parentComponentId} from error stack parsing`
+        );
+      }
+      const componentIndex =
+        parentRegistryComponent.state.components.push(name) - 1;
+
+      [a, b].forEach((input: Signal, idx: number) => {
+        if (!this.nullWriting)
+          parentRegistryComponent.state.connections.add({
+            source: input,
+            destinationComponentIndex: componentIndex,
+            inputIndex: idx,
+          });
+      });
+
+      return [{ component: componentIndex, pin: 0 }];
+    };
+  }
+
   public setEntryComponent(component: ComponentId) {
     if (!this.componentRegistry.has(component)) {
       throw new Error(

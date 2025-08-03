@@ -2,15 +2,10 @@
 
 import * as ErrorStackParser from "error-stack-parser";
 
-export type ComponentIndex = number; // Purely for readability; could just be `number`
+export type ComponentIndex = number; // Purely for readability
 export type ComponentPinIndex = number; // Purely for readability
 
 export type ComponentId = string;
-// export interface ComponentId {
-//   function: string;
-//   // file: string;
-//   // namespace: string;
-// }
 
 export interface ComponentStyle {
   name: string;
@@ -46,12 +41,12 @@ export function getComponentIdsFromStack(): ComponentId[] {
   });
 }
 
-// Credit: https://stackoverflow.com/a/52490977
-export type Tuple<T, N extends number> = N extends N
-  ? number extends N
-    ? T[]
-    : _TupleOf<T, N, []>
-  : never;
-type _TupleOf<T, N extends number, R extends unknown[]> = R["length"] extends N
-  ? R
-  : _TupleOf<T, N, [T, ...R]>;
+// // Credit: https://stackoverflow.com/a/52490977
+// export type Tuple<T, N extends number> = N extends N
+//   ? number extends N
+//     ? T[]
+//     : _TupleOf<T, N, []>
+//   : never;
+// type _TupleOf<T, N extends number, R extends unknown[]> = R["length"] extends N
+//   ? R
+//   : _TupleOf<T, N, [T, ...R]>;

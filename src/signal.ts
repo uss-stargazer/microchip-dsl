@@ -1,4 +1,4 @@
-import { ComponentIndex, ComponentPinIndex } from "./utils";
+import { ComponentIndex, ComponentPinIndex } from "./utils.js";
 
 /**
  * The base object for digital signals. Signal cans have one source and multiple
@@ -13,14 +13,14 @@ export interface SignalBase {
   pin: ComponentPinIndex | null; // Either the input or output pin index, depending on context
 }
 
-type Signal = [SignalBase];
+type Signal = SignalBase;
 export default Signal;
 
 export function nullSignal(): Signal {
-  return [{ component: null, pin: null }];
+  return { component: null, pin: null };
 }
 
 export function copySignal(from: Signal, to: Signal) {
-  to[0].component = from[0].component;
-  to[0].pin = from[0].pin;
+  to.component = from.component;
+  to.pin = from.pin;
 }

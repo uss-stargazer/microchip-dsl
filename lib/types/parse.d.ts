@@ -1,3 +1,6 @@
+export declare const TEST_SETTINGS: {
+    overrideParseCheck: boolean;
+};
 export type ComponentFunction = (...inputs: Signal[]) => void | Signal | Signal[];
 export interface ComponentId {
     function: string;
@@ -61,10 +64,39 @@ export interface MicrochipState {
     entryComponent: ComponentId;
     componentRegistry: Map<ComponentId, Component>;
 }
-export declare const intermediateState: IntermediateState;
+export declare function resolveImportToPath(importStr: string): string;
 export declare function getCallerInfo(): {
     callerId: ComponentId;
     callerParentId: ComponentId;
 };
+export declare const intermediateState: IntermediateState;
+export declare function registerSignal(): Signal;
+/**
+ * This function must be called before any internals of the chip are applied.
+ *
+ * @param inputs
+ * @param outputs
+ * @param style
+ *
+ * @returns
+ * n modified input signals
+ *
+ * @example
+ * function xor(in1: Signal, in2: Signal): Signal {
+ *    const out = registerSignal();
+ *    registerChip({
+ *      inputs: [in1, in2],
+ *      outputs: [out],
+ *      style: { name: "XOR Gate" }
+ *    });
+ *
+ *    return and(or(in1, in2), nand(in1, in2));
+ * }
+ */
+export declare function registerComponent(info: {
+    inputs: Signal[];
+    outputs: Signal[];
+    style?: Partial<ComponentStyle>;
+}): void;
 export declare function parse(entryPath: string): Promise<MicrochipState>;
 //# sourceMappingURL=parse.d.ts.map

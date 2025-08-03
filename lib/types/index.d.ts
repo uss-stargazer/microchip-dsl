@@ -1,36 +1,34 @@
-import * as Parse from "./parse.js";
-export { Signal } from "./parse.js";
-export declare function registerSignal(): Parse.Signal;
-/**
- * This function must be called before any internals of the chip are applied.
- *
- * @param inputs
- * @param outputs
- * @param style
- *
- * @returns
- * n modified input signals
- *
- * @example
- * function xor(in1: Signal, in2: Signal): Signal {
- *    const out = registerSignal();
- *    registerChip({
- *      inputs: [in1, in2],
- *      outputs: [out],
- *      style: { name: "XOR Gate" }
- *    });
- *
- *    return and(or(in1, in2), nand(in1, in2));
- * }
- */
-export declare function registerComponent(info: {
-    inputs: Parse.Signal[];
-    outputs: Parse.Signal[];
-    style: Partial<Parse.ComponentStyle>;
-}): void;
-export declare function not(a: Parse.Signal): Parse.Signal;
-export declare function nand(a: Parse.Signal, b: Parse.Signal): Parse.Signal;
-export declare function and(a: Parse.Signal, b: Parse.Signal): Parse.Signal;
-export declare function or(a: Parse.Signal, b: Parse.Signal): Parse.Signal;
-export declare function nor(a: Parse.Signal, b: Parse.Signal): Parse.Signal;
+import Signal from "./signal.js";
+import { ComponentId, ComponentStyle } from "./utils.js";
+type ComponentFunction = (...inputs: Signal[]) => Signal[];
+export interface Component {
+    nInputs: number;
+    nOutputs: number;
+    state: {
+        components: ComponentId[];
+        connections: Set<{
+            source: Signal;
+            destinationComponentIndex: number;
+            inputIndex: number;
+        }>;
+    };
+    style: Partial<ComponentStyle>;
+}
+type GateId = "nand" | "and" | "or" | "nor";
+type GateFunction = (a: Signal, b: Signal) => [Signal];
+export interface MicrochipState {
+    entryComponent: ComponentId;
+    componentRegistry: Map<ComponentId, Component>;
+}
+export default class Microchip {
+    private entryComponent;
+    private componentRegistry;
+    private nullWriting;
+    constructor();
+    _getState(): MicrochipState;
+    registerComponent<T extends ComponentFunction>(name: ComponentId, func: T, style?: Partial<ComponentStyle>): T;
+    registerGate(name: GateId, style?: Partial<ComponentStyle>): GateFunction;
+    setEntryComponent(component: ComponentId): void;
+}
+export {};
 //# sourceMappingURL=index.d.ts.map
