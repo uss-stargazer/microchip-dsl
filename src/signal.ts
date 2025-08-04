@@ -8,13 +8,10 @@ import { ComponentIndex, ComponentPinIndex } from "./utils.js";
  *
  * A signal without a source can exist; it represents an always-zero signal.
  */
-export interface SignalBase {
-  component: ComponentIndex | null;
+export default interface Signal {
+  component: ComponentIndex | "input" | "output" | null;
   pin: ComponentPinIndex | null; // Either the input or output pin index, depending on context
 }
-
-type Signal = SignalBase;
-export default Signal;
 
 export function nullSignal(): Signal {
   return { component: null, pin: null };

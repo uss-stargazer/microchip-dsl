@@ -2,8 +2,8 @@
   "compilerOptions": {
     "lib": ["ES2024", "DOM"],
     "target": "ES2024",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "outDir": "./lib/",
     "declarationDir": "./lib/types",
     "strict": true,
@@ -17,5 +17,6 @@
     "allowSyntheticDefaultImports": true,
     "paths": {"@/*": ["./*"]}
   },
-  "files": ["src/index.ts", "src/gates.ts", "src/build/index.ts"]
+  "include": ["src", "samples"],
+  "exclude": ["bin", "lib", "node_modules", "src_old"]
 }
