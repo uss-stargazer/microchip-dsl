@@ -1,37 +1,36 @@
-import Microchip from "../src/index.js";
-import Signal, { nullSignal, copySignal } from "../src/signal.js";
+import Microchip, { Signal, nullSignal, copySignal } from '../src/index.js';
 
 const microchip = new Microchip();
-const nand = microchip.registerGate("nand");
-const and = microchip.registerGate("and");
-const or = microchip.registerGate("or");
+const nand = microchip.registerGate('nand');
+const and = microchip.registerGate('and');
+const or = microchip.registerGate('or');
 
 const srLatch = microchip.registerComponent(
-  "srLatch",
+  'srLatch',
   (s: Signal, r: Signal): [Signal, Signal] => {
     const q = nullSignal();
     const qNot = nullSignal();
 
     copySignal(...nand(s, qNot), q);
-    copySignal(...nand(r, q), qNot);
+    copySignal(...nand(q, r), qNot);
 
     return [q, qNot];
-  }
+  },
 );
 
 const xor = microchip.registerComponent(
-  "xor",
+  'xor',
   (a: Signal, b: Signal): [Signal] => {
     return and(...nand(a, b), ...or(a, b));
-  }
+  },
 );
 
 microchip.registerComponent(
-  "wack",
+  'wack',
   (a: Signal, b: Signal): [Signal, Signal] => {
     return srLatch(...xor(a, b), nullSignal());
-  }
+  },
 );
 
-microchip.setEntryComponent("wack");
+microchip.setEntryComponent('wack');
 export default microchip;

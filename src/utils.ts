@@ -1,6 +1,6 @@
 // Should this be like a .d.ts file or something else just for types?
 
-import ErrorStackParser from "error-stack-parser";
+import ErrorStackParser from 'error-stack-parser';
 
 export type ComponentIndex = number; // Purely for readability
 export type ComponentPinIndex = number; // Purely for readability
@@ -12,23 +12,23 @@ export interface ComponentStyle {
   inputNames: string[];
   outputNames: string[];
   color:
-    | "red"
-    | "orange"
-    | "yellow"
-    | "green"
-    | "blue"
-    | "purple"
-    | "brown"
-    | "black"
-    | "gray";
+    | 'red'
+    | 'orange'
+    | 'yellow'
+    | 'green'
+    | 'blue'
+    | 'purple'
+    | 'brown'
+    | 'black'
+    | 'gray';
 }
 
-export function getComponentIdsFromStack(lastNIds: number): ComponentId[] {
+export function getFunctionNamesFromStack(nLastIds: number): string[] {
   const stackTrace = ErrorStackParser.parse(new Error());
-  const stackTraceSlice = stackTrace.slice(0, lastNIds);
+  const stackTraceSlice = stackTrace.slice(0, nLastIds);
   return stackTraceSlice.map((value) => {
     if (!value.functionName || !value.fileName) {
-      throw new Error("Caller function or file name undefined");
+      throw new Error('Caller function or file name undefined');
     }
     return value.functionName;
   });
