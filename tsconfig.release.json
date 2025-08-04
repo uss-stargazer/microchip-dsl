@@ -2,7 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "sourceMap": false,
-    "removeComments": true
+    "removeComments": true,
+    "outDir": "lib"
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts", "**/*.spec.ts", "samples"]
