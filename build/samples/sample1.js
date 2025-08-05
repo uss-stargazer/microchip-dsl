@@ -1,4 +1,4 @@
-import Microchip from '../src/index.js';
+import { Microchip } from '../src/index.js';
 const microchip = new Microchip();
 const fancyPants = microchip.registerComponent((a, b) => {
     return [b, a];

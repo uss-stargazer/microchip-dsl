@@ -1,5 +1,6 @@
 node_modules/
 lib/
+build/
 src_old/
 build/
 out.json

@@ -1,10 +1,7 @@
 import { describe, expect, test } from 'vitest';
 
-import Microchip, {
-  Component,
-  MicrochipState,
-  Signal,
-} from '../../src/index.js';
+import { Microchip, Component, MicrochipState } from '../../src/microchip.js';
+import { Signal } from '../../src/signal.js';
 import { ComponentId } from '../../src/utils.js';
 
 describe('Microchip class', async () => {

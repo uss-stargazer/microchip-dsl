@@ -29,12 +29,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/stevenagoodman/microchip.git"
+    "url": "git+https://github.com/stevenagoodman/microchip-dsl.git"
   },
   "bugs": {
-    "url": "https://github.com/stevenagoodman/microchip/issues"
+    "url": "https://github.com/stevenagoodman/microchip-dsl/issues"
   },
-  "homepage": "https://github.com/stevenagoodman/microchip#readme",
+  "homepage": "https://github.com/stevenagoodman/microchip-dsl#readme",
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@types/eslint__js": "^8.42.3",

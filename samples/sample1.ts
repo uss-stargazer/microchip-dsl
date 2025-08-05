@@ -1,4 +1,4 @@
-import Microchip, { Signal } from '../src/index.js';
+import { Microchip, Signal } from '../src/index.js';
 
 const microchip = new Microchip();
 

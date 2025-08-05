@@ -1,4 +1,4 @@
-import Microchip, { nullSignal, copySignal } from '../src/index.js';
+import { Microchip, nullSignal, copySignal } from '../src/index.js';
 const microchip = new Microchip();
 const nand = microchip.registerGate('nand');
 const and = microchip.registerGate('and');
