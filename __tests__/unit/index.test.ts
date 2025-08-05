@@ -5,13 +5,13 @@ import Microchip, {
   MicrochipState,
   Signal,
 } from '../../src/index.js';
+import { ComponentId } from '../../src/utils.js';
 
 describe('Microchip class', async () => {
-  const defaultGates: [string, Component][] = [
+  const defaultGates: [ComponentId, Component][] = [
     [
       'nand',
       {
-        isGate: true,
         nInputs: 2,
         nOutputs: 1,
         state: null,
@@ -21,7 +21,6 @@ describe('Microchip class', async () => {
     [
       'and',
       {
-        isGate: true,
         nInputs: 2,
         nOutputs: 1,
         state: null,
@@ -31,7 +30,6 @@ describe('Microchip class', async () => {
     [
       'or',
       {
-        isGate: true,
         nInputs: 2,
         nOutputs: 1,
         state: null,
@@ -41,7 +39,6 @@ describe('Microchip class', async () => {
     [
       'nor',
       {
-        isGate: true,
         nInputs: 2,
         nOutputs: 1,
         state: null,
@@ -54,12 +51,11 @@ describe('Microchip class', async () => {
     [
       'sample1',
       {
-        entryComponent: 'main',
+        entryComponent: 0,
         componentRegistry: new Map([
           [
-            'main',
+            0,
             {
-              isGate: false,
               nInputs: 2,
               nOutputs: 2,
               state: {
@@ -84,12 +80,11 @@ describe('Microchip class', async () => {
     [
       'sample2',
       {
-        entryComponent: 'oboo',
+        entryComponent: 0,
         componentRegistry: new Map([
           [
-            'oboo',
+            0,
             {
-              isGate: false,
               nInputs: 0,
               nOutputs: 0,
               state: {
@@ -106,16 +101,15 @@ describe('Microchip class', async () => {
     [
       'sample3',
       {
-        entryComponent: 'main',
+        entryComponent: 1,
         componentRegistry: new Map([
           [
-            'main',
+            1,
             {
-              isGate: false,
               nInputs: 2,
               nOutputs: 1,
               state: {
-                components: ['nor', 'xor', 'or'],
+                components: ['nor', 0, 'or'],
                 connections: new Set<{
                   source: Signal;
                   destination: Signal;
@@ -154,9 +148,8 @@ describe('Microchip class', async () => {
             },
           ],
           [
-            'xor',
+            0,
             {
-              isGate: false,
               nInputs: 2,
               nOutputs: 1,
               state: {
@@ -205,16 +198,15 @@ describe('Microchip class', async () => {
     [
       'sample4',
       {
-        entryComponent: 'wack',
+        entryComponent: 2,
         componentRegistry: new Map([
           [
-            'wack',
+            2,
             {
-              isGate: false,
               nInputs: 2,
               nOutputs: 2,
               state: {
-                components: ['xor', 'srLatch'],
+                components: [1, 0],
                 connections: new Set<{
                   source: Signal;
                   destination: Signal;
@@ -249,9 +241,8 @@ describe('Microchip class', async () => {
             },
           ],
           [
-            'xor',
+            1,
             {
-              isGate: false,
               nInputs: 2,
               nOutputs: 1,
               state: {
@@ -294,9 +285,8 @@ describe('Microchip class', async () => {
             },
           ],
           [
-            'srLatch',
+            0,
             {
-              isGate: false,
               nInputs: 2,
               nOutputs: 2,
               state: {
@@ -332,7 +322,11 @@ describe('Microchip class', async () => {
                   },
                 ]),
               },
-              style: {},
+              style: {
+                name: 'SR Latch',
+                inputNames: ['Set', 'Reset'],
+                outputNames: ['Q', '~Q'],
+              },
             },
           ],
           ...defaultGates.slice(0, 3), // Exclude nor gate

@@ -6,9 +6,9 @@ microchip.registerGate('and');
 microchip.registerGate('or');
 microchip.registerGate('nor');
 
-microchip.registerComponent('oboo', (): [] => {
+const oboo = microchip.registerComponent((): [] => {
   return [];
 });
 
-microchip.setEntryComponent('oboo');
+microchip.setEntryComponent(oboo);
 export default microchip;

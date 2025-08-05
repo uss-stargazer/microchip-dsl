@@ -6,16 +6,13 @@ const and = microchip.registerGate('and');
 const or = microchip.registerGate('or');
 const nor = microchip.registerGate('nor');
 
-const xor = microchip.registerComponent(
-  'xor',
-  (a: Signal, b: Signal): [Signal] => {
-    return and(...nand(a, b), ...or(a, b));
-  },
-);
+const xor = microchip.registerComponent((a: Signal, b: Signal): [Signal] => {
+  return and(...nand(a, b), ...or(a, b));
+});
 
-microchip.registerComponent('main', (a: Signal, b: Signal): [Signal] => {
+const main = microchip.registerComponent((a: Signal, b: Signal): [Signal] => {
   return or(...xor(...nor(a, b), b), nullSignal());
 });
 
-microchip.setEntryComponent('main');
+microchip.setEntryComponent(main);
 export default microchip;

@@ -1,16 +1,18 @@
 import { Signal } from './signal.js';
 import {
+  GateId,
   ComponentId,
   ComponentStyle,
   getFunctionNamesFromStack,
+  countElementsOfTypeInArray,
 } from './utils.js';
 
 export * from './signal.js';
 
 type ComponentFunction = (...inputs: Signal[]) => Signal[];
+type GateFunction = (a: Signal, b: Signal) => [Signal]; // Subset of component
 
 export interface Component {
-  isGate: boolean;
   nInputs: number;
   nOutputs: number;
   state: {
@@ -19,12 +21,9 @@ export interface Component {
       source: Signal; // Source is a signal; this way it can be changed in the future and it will refect in this object
       destination: Signal;
     }>;
-  } | null; // null if gate
+  } | null; // Null if gate
   style: Partial<ComponentStyle>;
 }
-
-type GateId = 'nand' | 'and' | 'or' | 'nor';
-type GateFunction = (a: Signal, b: Signal) => [Signal];
 
 export interface MicrochipState {
   entryComponent: ComponentId;
@@ -46,7 +45,7 @@ export default class Microchip {
   }
 
   public _getState(): MicrochipState {
-    if (!this.entryComponent) {
+    if (this.entryComponent === undefined) {
       throw new Error('Cannot get state with an undefined entry component');
     }
     return {
@@ -64,7 +63,6 @@ export default class Microchip {
     }
 
     const componentRegistryInfo: Component = {
-      isGate: true,
       nInputs: 2,
       nOutputs: 1,
       state: null,
@@ -79,7 +77,7 @@ export default class Microchip {
     const mockMethod = function (a: Signal, b: Signal): [Signal] {
       let componentIndex = null;
       if (!nullWriting.value) {
-        const parentComponentId = getFunctionNamesFromStack(3)[2];
+        const parentComponentId = Number(getFunctionNamesFromStack(3)[2]);
         const parentRegistryComponent =
           componentRegistry.get(parentComponentId);
 
@@ -107,17 +105,15 @@ export default class Microchip {
   }
 
   public registerComponent<T extends ComponentFunction>(
-    name: ComponentId,
     func: T,
     style?: Partial<ComponentStyle>,
   ): T {
-    if (this.componentRegistry.has(name)) {
-      throw new Error(
-        `Cannot register the same component twice: ${name} function already registered`,
-      );
-    }
+    const id = countElementsOfTypeInArray(
+      [...this.componentRegistry.keys()],
+      'number',
+    );
 
-    Object.defineProperty(func, 'name', { value: name });
+    Object.defineProperty(func, 'name', { value: id.toString() });
 
     // Parse component to state
     const nInputs = func.length;
@@ -126,13 +122,12 @@ export default class Microchip {
     this.nullWriting.value = false;
 
     const componentRegistryInfo: Component = {
-      isGate: false,
       nInputs: nInputs,
       nOutputs: nOutputs,
       state: { components: [], connections: new Set() },
       style: { ...style },
     };
-    this.componentRegistry.set(name, componentRegistryInfo);
+    this.componentRegistry.set(id, componentRegistryInfo);
 
     // We run the function which should add to the registry object's state at runtime
     func(
@@ -153,7 +148,7 @@ export default class Microchip {
     const mockMethod = function (...inputs: Signal[]): Signal[] {
       let componentIndex = null;
       if (!nullWriting.value) {
-        const parentComponentId = getFunctionNamesFromStack(3)[2];
+        const parentComponentId = Number(getFunctionNamesFromStack(3)[2]);
         const parentRegistryComponent =
           componentRegistry.get(parentComponentId);
 
@@ -162,8 +157,7 @@ export default class Microchip {
             `ComponentId ${parentComponentId} (parent of ${name}) is not registered`,
           );
         }
-        componentIndex =
-          parentRegistryComponent.state.components.push(name) - 1;
+        componentIndex = parentRegistryComponent.state.components.push(id) - 1;
 
         inputs.forEach((input: Signal, idx: number) => {
           parentRegistryComponent.state.connections.add({
@@ -180,16 +174,17 @@ export default class Microchip {
         },
       );
     } as T;
-    Object.defineProperty(mockMethod, 'name', { value: name });
+    Object.defineProperty(mockMethod, 'name', { value: id.toString() });
     return mockMethod;
   }
 
-  public setEntryComponent(component: ComponentId): void {
-    if (!this.componentRegistry.has(component)) {
+  public setEntryComponent(component: ComponentFunction): void {
+    const id = Number(component.name);
+    if (!this.componentRegistry.has(id)) {
       throw new Error(
-        'Component must be registered before it is set as entry component',
+        `Component '${id}' must be registered before it is set as entry component `,
       );
     }
-    this.entryComponent = component;
+    this.entryComponent = id;
   }
 }
