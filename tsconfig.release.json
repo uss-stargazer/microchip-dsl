@@ -3,6 +3,7 @@
   "compilerOptions": {
     "sourceMap": false,
     "removeComments": true,
+    "rootDir": "src",
     "outDir": "lib"
   },
   "include": ["src"],

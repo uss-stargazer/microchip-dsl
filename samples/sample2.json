@@ -1,0 +1,59 @@
+{
+	"entryComponent": 0,
+	"componentRegistry": {
+		"dataType": "Map",
+		"value": [
+			[
+				"nand",
+				{
+					"nInputs": 2,
+					"nOutputs": 1,
+					"state": null,
+					"style": {}
+				}
+			],
+			[
+				"and",
+				{
+					"nInputs": 2,
+					"nOutputs": 1,
+					"state": null,
+					"style": {}
+				}
+			],
+			[
+				"or",
+				{
+					"nInputs": 2,
+					"nOutputs": 1,
+					"state": null,
+					"style": {}
+				}
+			],
+			[
+				"nor",
+				{
+					"nInputs": 2,
+					"nOutputs": 1,
+					"state": null,
+					"style": {}
+				}
+			],
+			[
+				0,
+				{
+					"nInputs": 0,
+					"nOutputs": 0,
+					"state": {
+						"components": [],
+						"connections": {
+							"dataType": "Set",
+							"value": []
+						}
+					},
+					"style": {}
+				}
+			]
+		]
+	}
+}
