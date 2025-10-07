@@ -107,7 +107,7 @@ describe('Microchip class', async () => {
               nInputs: 2,
               nOutputs: 1,
               state: {
-                components: [1, 2, 0],
+                components: [0, 2, 1],
                 connections: new Set<{
                   source: Signal;
                   destination: Signal;
@@ -196,16 +196,16 @@ describe('Microchip class', async () => {
     [
       'sample4',
       {
-        entryComponent: 6,
+        entryComponent: 5,
         componentRegistry: new Map([
           ...defaultGates.slice(0, 3), // Exclude nor gate
           [
-            4,
+            3,
             {
               nInputs: 2,
               nOutputs: 2,
               state: {
-                components: [1, 1],
+                components: [0, 0],
                 connections: new Set<{
                   source: Signal;
                   destination: Signal;
@@ -245,12 +245,12 @@ describe('Microchip class', async () => {
             },
           ],
           [
-            5,
+            4,
             {
               nInputs: 2,
               nOutputs: 1,
               state: {
-                components: [1, 2, 0],
+                components: [0, 2, 1],
                 connections: new Set<{
                   source: Signal;
                   destination: Signal;
@@ -290,12 +290,12 @@ describe('Microchip class', async () => {
           ],
 
           [
-            6,
+            5,
             {
               nInputs: 2,
               nOutputs: 2,
               state: {
-                components: [5, 4],
+                components: [4, 3],
                 connections: new Set<{
                   source: Signal;
                   destination: Signal;

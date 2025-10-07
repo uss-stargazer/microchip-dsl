@@ -6,7 +6,7 @@ microchip.registerGate('and', 2, 1);
 microchip.registerGate('or', 2, 1);
 microchip.registerGate('nor', 2, 1);
 
-const oboo = microchip.registerComponent((): [] => {
+const oboo = microchip.registerChip((): [] => {
   return [];
 });
 

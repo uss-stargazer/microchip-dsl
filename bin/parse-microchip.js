@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-const USAGE = 'parse-microchip [options] <entry_path> <output_path>';
-const HELP = `Usage: ${USAGE}`;
+const HELP = 'Usage: parse-microchip [options] <entry_path> <output_path>';
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -32,7 +31,7 @@ function microchipStateReplacer(key, value) {
   if (value instanceof Map) {
     if (key === 'componentRegistry') {
       for (const component of value.values()) {
-        if (component.state) {
+        if (typeof component.state != "string") {
           component.state.connections = {
             dataType: 'Set',
             value: [...component.state.connections],

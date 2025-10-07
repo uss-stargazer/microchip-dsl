@@ -10,7 +10,7 @@ const nand = microchip.registerGate('nand', 2, 1);
 const and = microchip.registerGate('and', 2, 1);
 const or = microchip.registerGate('or', 2, 1);
 
-const srLatch = microchip.registerComponent(
+const srLatch = microchip.registerChip(
   (s: Signal, r: Signal): [Signal, Signal] => {
     const q = nullSignal();
     const qNot = nullSignal();
@@ -21,13 +21,11 @@ const srLatch = microchip.registerComponent(
   { name: 'SR Latch', inputNames: ['Set', 'Reset'], outputNames: ['Q', '~Q'] },
 );
 
-const xor = microchip.registerComponentSingleOut(
-  (a: Signal, b: Signal): Signal => {
-    return and(nand(a, b), or(a, b));
-  },
-);
+const xor = microchip.registerChipSingleOut((a: Signal, b: Signal): Signal => {
+  return and(nand(a, b), or(a, b));
+});
 
-const wack = microchip.registerComponent(
+const wack = microchip.registerChip(
   (a: Signal, b: Signal): [Signal, Signal] => {
     return srLatch(xor(a, b), nullSignal());
   },

@@ -36,15 +36,13 @@ export type Tuple<T, N extends number> = N extends N
 //   R extends unknown[] = [],
 // > = R['length'] extends N ? R : Tuple<T, N, [T, ...R]>;
 
-export function getFunctionNamesFromStack(nLastIds: number): string[] {
-  const stackTrace = ErrorStackParser.parse(new Error());
-  const stackTraceSlice = stackTrace.slice(1, nLastIds + 1); // So as not to include `getFunctionNamesFromStack`
-  return stackTraceSlice.map((value) => {
-    if (!value.functionName || !value.fileName) {
-      throw new Error('Caller function or file name undefined');
-    }
-    return value.functionName;
-  });
+export function getNthFunctionNameUpStack(n: number): string {
+  const functionInfo = ErrorStackParser.parse(new Error())[1 + n]; // So as not to include `getFunctionNamesFromStack`;
+  if (!functionInfo.functionName || !functionInfo.fileName)
+    throw new Error(
+      `The function ${n} functions up the call stack has undefined name ('${functionInfo.functionName}') or file name ('${functionInfo.fileName}')`,
+    );
+  return functionInfo.functionName;
 }
 
 // export function countElementsOfTypeInArray(

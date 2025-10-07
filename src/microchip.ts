@@ -10,13 +10,7 @@ import {
   GateComponent,
 } from './Component.js';
 import { nullSignal, Signal } from './Signal.js';
-import { getFunctionNamesFromStack, Tuple } from './utils.js';
-
-enum ComponentFunctionOutputType {
-  TUPLE,
-  SINGLE,
-  NONE,
-}
+import { getNthFunctionNameUpStack, Tuple } from './utils.js';
 
 export interface MicrochipState {
   entryComponent: ComponentId;
@@ -89,8 +83,14 @@ export class Microchip {
     ): ComponentFunctionReturn<O> {
       let componentIndex = null;
       if (!disableModifications.value) {
-        // Get the third name up (Call stack looks like `mockMethod` <= `chipThatImplementsThisGate`)
-        const parentComponentId = Number(getFunctionNamesFromStack(2)[1]);
+        // Get the third name up (Call stack looks like `mockMethod` <= `packagedFunc` (see all registerChip implementations) <= `chipThatImplementsThisGate`)
+        const parentComponentIdStr = getNthFunctionNameUpStack(2);
+        const parentComponentId = Number(parentComponentIdStr);
+        if (Number.isNaN(parentComponentId)) {
+          throw new Error(
+            `Cannot find parent ComponentId for ${name} (function name where id was expected: ${parentComponentIdStr})`,
+          );
+        }
         const parentRegistryComponent = componentRegistry.get(
           parentComponentId,
         ) as ChipComponent;
@@ -134,173 +134,241 @@ export class Microchip {
   }
 
   // General implementation of registering a component, i.e. the core
-  public _registerComponentCore<
+  private _registerChipCore<
     I extends number,
     O extends number,
     T extends ComponentFunction<I, O>,
   >(
-    func: ComponentFunction<I, O>,
+    nInputs: I,
+    nOutputs: O,
+    id: ComponentId,
+    func: T,
     style?: Partial<ComponentStyle>,
-  ): ComponentFunction<I, O> {
-    // const id = this.componentRegistry.size;
-    // Object.defineProperty(func, 'name', { value: id.toString() });
+  ): T {
+    Object.defineProperty(func, 'name', { value: id.toString() });
 
-    // const nInputs = func.length;
-    // const mockInputs = Array.from(
-    //   { length: nInputs },
-    //   (_, idx: number): Signal => {
-    //     return { component: 'input', pin: idx };
-    //   },
-    // ) as Tuple<Signal, I>;
+    const mockInputs = Array.from(
+      { length: nInputs },
+      (_, idx: number): Signal => {
+        return { component: 'input', pin: idx };
+      },
+    ) as Tuple<Signal, I>;
 
-    // // Parse component to state
-    // this.disableModifications.value = true;
-    // const funcOutput = func(...mockInputs); // Hacky hack to get the n of ouputs by running the function with mock
-    // this.disableModifications.value = false;
-    // const nOutputs = funcOutput.length;
-    // const componentRegistryInfo: ChipComponent = {
-    //   nInputs: nInputs,
-    //   nOutputs: nOutputs,
-    //   state: { components: [], connections: new Set() },
-    //   style: { ...style },
-    // };
-    // this.componentRegistry.set(id, componentRegistryInfo);
+    // Parse component to state
+    const componentRegistryInfo: ChipComponent = {
+      nInputs: nInputs,
+      nOutputs: nOutputs,
+      state: { components: [], connections: new Set() },
+      style: { ...style },
+    };
+    this.componentRegistry.set(id, componentRegistryInfo);
 
-    // // We run the function which should add to the registry object's state at runtime
-    // func(...mockInputs).forEach((output: Signal, idx: number) => {
-    //   componentRegistryInfo.state.connections.add({
-    //     source: output,
-    //     destination: { component: 'output', pin: idx },
-    //   });
-    // });
+    // We run the function which should add to the registry object's state at runtime
+    func(...mockInputs).forEach((output: Signal, idx: number) => {
+      componentRegistryInfo.state.connections.add({
+        source: output,
+        destination: { component: 'output', pin: idx },
+      });
+    });
 
-    // const componentRegistry = this.componentRegistry;
-    // const disableModifications = this.disableModifications;
+    const componentRegistry = this.componentRegistry;
+    const disableModifications = this.disableModifications;
 
-    // // Create mock method
-    // const mockMethod = function (
-    //   ...inputs: Tuple<Signal, I>
-    // ): Tuple<Signal, O> {
-    //   let componentIndex = null;
-    //   if (!disableModifications.value) {
-    //     // Get the third name up (Call stack looks like `mockMethod` <= `packagedFunction` (see all implementations) <= `chipThatImplementsThisChip`)
-    //     const parentComponentId = Number(getFunctionNamesFromStack(3)[2]);
-    //     const parentRegistryComponent = componentRegistry.get(
-    //       parentComponentId,
-    //     ) as ChipComponent;
-    //     if (!parentRegistryComponent) {
-    //       throw new Error(
-    //         `ComponentId ${parentComponentId} (parent of ${name}) is not registered`,
-    //       );
-    //     }
-    //     componentIndex = parentRegistryComponent.state.components.push(id) - 1;
-    //     inputs.forEach((input: Signal, idx: number) => {
-    //       parentRegistryComponent.state.connections.add({
-    //         source: input,
-    //         destination: { component: componentIndex!, pin: idx },
-    //       });
-    //     });
-    //   }
-    //   return Array.from(
-    //     { length: componentRegistryInfo.nOutputs },
-    //     (_, idx: number): Signal => {
-    //       return { component: componentIndex, pin: idx };
-    //     },
-    //   ) as Tuple<Signal, O>;
-    // };
+    // Create mock method
+    const mockMethod = function (
+      ...inputs: Tuple<Signal, I>
+    ): Tuple<Signal, O> {
+      let componentIndex = null;
+      if (!disableModifications.value) {
+        // Get the third name up (Call stack looks like `mockMethod` <= `packagedFunction` (see all registerChip implementations) <= `chipThatImplementsThisChip`)
+        const parentComponentId = Number(getNthFunctionNameUpStack(2));
+        const parentRegistryComponent = componentRegistry.get(
+          parentComponentId,
+        ) as ChipComponent;
+        if (!parentRegistryComponent) {
+          throw new Error(
+            `ComponentId ${parentComponentId} (parent of ${name}) is not registered`,
+          );
+        }
+        componentIndex = parentRegistryComponent.state.components.push(id) - 1;
+        inputs.forEach((input: Signal, idx: number) => {
+          parentRegistryComponent.state.connections.add({
+            source: input,
+            destination: { component: componentIndex!, pin: idx },
+          });
+        });
+      }
+      return Array.from(
+        { length: componentRegistryInfo.nOutputs },
+        (_, idx: number): Signal => {
+          return { component: componentIndex, pin: idx };
+        },
+      ) as Tuple<Signal, O>;
+    };
 
-    // Object.defineProperty(mockMethod, 'name', { value: id.toString() });
-    // return mockMethod; // Maybe not mature but at this point idc (TODO: better way?)
-    return null;
+    Object.defineProperty(mockMethod, 'name', { value: id.toString() });
+    return mockMethod as T; // Maybe not mature but at this point idc (TODO: better way?)
   }
 
   /**
    * Register a *chip*, which is a collection of gates and other chips connected to each
    * other. This method only accepts and returns functions of tuples of input/output signals
    * so if you want to return a signle or no signal, it recommended to use
-   * `registerComponentSingleOut()` or `registerComponentNoOut()`.
+   * `registerChipSingleOut()` or `registerChipNoOut()`.
    *
    * @param func Function with the implementation of the chip.
    * @param style Optional styling
    * @returns Function for implementing the chip in other chips
    */
-  public registerComponent<
+  public registerChip<
     I extends number,
     O extends number,
     T extends ComponentFunction<I, O>,
   >(func: T, style?: Partial<ComponentStyle>): T {
-    console.log('HELLO: ', func.length);
-    /* Need to package despite being the same because _registerComponentCore expects 
-    a wrapper function (to support the single and no versions of this method) */
-    const packagedFunc: ComponentFunction<I, O> = (
+    // Get nInputs
+    const nInputs = func.length;
+
+    // Get nOutputs by running it with mock and no writing
+    const mockInputs: Tuple<Signal, I> = new Array(nInputs).fill(
+      nullSignal(),
+    ) as Tuple<Signal, I>;
+    this.disableModifications.value = true;
+    const nOutputs = func(...mockInputs).length;
+    this.disableModifications.value = false;
+
+    // Get id
+    const id = this.componentRegistry.size;
+    Object.defineProperty(func, 'name', { value: id.toString() });
+
+    /* Need to package despite being the same because _registerChipCore expects 
+       a wrapper function (to support the single and no versions of this method) */
+    const packagedFunc: ComponentFunction<I, O> = function (
       ...inputs: Tuple<Signal, I>
-    ): Tuple<Signal, O> => {
+    ): Tuple<Signal, O> {
       return func(...inputs);
     };
-    console.log('WORLD: ', packagedFunc.length);
-    const componentCaller = this._registerComponentCore(packagedFunc, style);
-    let unpackagedComponenetCaller: ComponentFunction<I, O> = componentCaller;
+    const componentCaller = this._registerChipCore(
+      nInputs,
+      nOutputs,
+      id,
+      packagedFunc,
+      style,
+    );
+    const unpackagedComponenetCaller: ComponentFunction<I, O> = function (
+      ...inputs: Tuple<Signal, I>
+    ): Tuple<Signal, O> {
+      return componentCaller(...inputs);
+    };
+
+    // Forward component name to unpackaged
+    Object.defineProperty(unpackagedComponenetCaller, 'name', {
+      value: componentCaller.name,
+    });
 
     return unpackagedComponenetCaller as T; // Maybe a better way to do this? (TODO:)
   }
 
-  // /**
-  //  * Register component with a single output (this is an alternative to returning a
-  //  * 1-length tuple with the classic `registerComponenent()`). For more about
-  //  * registering components, see `registerComponenent()`.
-  //  *
-  //  * @param func Function with the implementation of the chip
-  //  * @param style Optional styling
-  //  * @returns Function for implementing the chip in other chips
-  //  */
-  // public registerComponentSingleOut<
-  //   I extends number,
-  //   T extends ComponentFunctionSingleOut<I>,
-  // >(func: T, style?: Partial<ComponentStyle>): T {
-  //   const packagedFunc: ComponentFunction<I, 1> = (
-  //     ...inputs: Tuple<Signal, I>
-  //   ): Tuple<Signal, 1> => {
-  //     return [func(...inputs)];
-  //   };
-  //   const componentCaller = this.registerComponent(packagedFunc, style);
-  //   let unpackagedComponenetCaller: ComponentFunctionSingleOut<I> = (
-  //     ...inputs: Tuple<Signal, I>
-  //   ): Signal => {
-  //     return componentCaller(...inputs)[0];
-  //   };
+  /**
+   * Register component with a single output (this is an alternative to returning a
+   * 1-length tuple with the classic `registerComponenent()`). For more about
+   * registering components, see `registerComponenent()`.
+   *
+   * @param func Function with the implementation of the chip
+   * @param style Optional styling
+   * @returns Function for implementing the chip in other chips
+   */
+  public registerChipSingleOut<
+    I extends number,
+    T extends ComponentFunctionSingleOut<I>,
+  >(func: T, style?: Partial<ComponentStyle>): T {
+    // Get nInputs and nOutputs
+    const nInputs = func.length;
+    const nOutputs = 1;
 
-  //   return unpackagedComponenetCaller as T; // Maybe a better way to do this? (TODO:)
-  // }
+    // Get id
+    const id = this.componentRegistry.size;
+    Object.defineProperty(func, 'name', { value: id.toString() });
 
-  // /**
-  //  * Register component with a no output (this is an alternative to returning a
-  //  * empty tuple with the classic `registerComponenent()`). For more about
-  //  * registering components, see `registerComponenent()`.
-  //  *
-  //  * @param func Function with the implementation of the chip
-  //  * @param style Optional styling
-  //  * @returns Function for implementing the chip in other chips
-  //  */
-  // public registerComponentNoOut<
-  //   I extends number,
-  //   T extends ComponentFunctionNoOut<I>,
-  // >(func: T, style?: Partial<ComponentStyle>): T {
-  //   const packagedFunc: ComponentFunction<I, 0> = (
-  //     ...inputs: Tuple<Signal, I>
-  //   ): Tuple<Signal, 0> => {
-  //     func(...inputs);
-  //     return [];
-  //   };
-  //   const componentCaller = this.registerComponent(packagedFunc, style);
-  //   let unpackagedComponenetCaller: ComponentFunctionNoOut<I> = (
-  //     ...inputs: Tuple<Signal, I>
-  //   ): void => {
-  //     componentCaller(...inputs);
-  //   };
+    const packagedFunc: ComponentFunction<I, 1> = function (
+      ...inputs: Tuple<Signal, I>
+    ): Tuple<Signal, 1> {
+      return [func(...inputs)];
+    };
+    const componentCaller = this._registerChipCore(
+      nInputs,
+      nOutputs,
+      id,
+      packagedFunc,
+      style,
+    );
+    const unpackagedComponenetCaller: ComponentFunctionSingleOut<I> = function (
+      ...inputs: Tuple<Signal, I>
+    ): Signal {
+      return componentCaller(...inputs)[0];
+    };
 
-  //   return unpackagedComponenetCaller as T; // Maybe a better way to do this? (TODO:)
-  // }
+    // Forward component name to unpackaged
+    Object.defineProperty(unpackagedComponenetCaller, 'name', {
+      value: componentCaller.name,
+    });
 
+    return unpackagedComponenetCaller as T; // Maybe a better way to do this? (TODO:)
+  }
+
+  /**
+   * Register component with a no output (this is an alternative to returning a
+   * empty tuple with the classic `registerComponenent()`). For more about
+   * registering components, see `registerComponenent()`.
+   *
+   * @param func Function with the implementation of the chip
+   * @param style Optional styling
+   * @returns Function for implementing the chip in other chips
+   */
+  public registerChipNoOut<
+    I extends number,
+    T extends ComponentFunctionNoOut<I>,
+  >(func: T, style?: Partial<ComponentStyle>): T {
+    // Get nInputs and nOutputs
+    const nInputs = func.length;
+    const nOutputs = 0;
+
+    // Get id and set func name as id
+    const id: ComponentId = this.componentRegistry.size;
+    Object.defineProperty(func, 'name', { value: id.toString() });
+
+    const packagedFunc: ComponentFunction<I, 0> = function (
+      ...inputs: Tuple<Signal, I>
+    ): Tuple<Signal, 0> {
+      func(...inputs);
+      return [];
+    };
+    const componentCaller = this._registerChipCore(
+      nInputs,
+      nOutputs,
+      id,
+      packagedFunc,
+      style,
+    );
+    let unpackagedComponenetCaller: ComponentFunctionNoOut<I> = function (
+      ...inputs: Tuple<Signal, I>
+    ): void {
+      componentCaller(...inputs);
+    };
+
+    // Forward component name to unpackaged
+    Object.defineProperty(unpackagedComponenetCaller, 'name', {
+      value: componentCaller.name,
+    });
+
+    return unpackagedComponenetCaller as T; // Maybe a better way to do this? (TODO:)
+  }
+
+  /**
+   * Assign base component of the entire microchip. Whatever component (chip or
+   * gate) *is* the microchip, if you think of the microchip as a single chip.
+   *
+   * @param component The entry component
+   */
   public setEntryComponent<I extends number, O extends number>(
     component:
       | ComponentFunction<I, O>

@@ -21,9 +21,6 @@ export type ComponentFunctionReturn<N extends number> = N extends 0
   : N extends 1
     ? Signal
     : Tuple<Signal, N>;
-export type ComponentFunction<I extends number, O extends number> = (
-  ...inputs: Tuple<Signal, I>
-) => ComponentFunctionReturn<O>;
 
 export interface ComponentStyle {
   name: string;
