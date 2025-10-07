@@ -1,8 +1,8 @@
-import { Microchip, type Signal } from '../lib/index.js';
+import { Microchip, type Signal } from '../src/index.js';
 
 const microchip = new Microchip();
 
-const fancyPants = microchip.registerComponent(
+const fancyPants = microchip._registerComponentCore(
   (a: Signal, b: Signal): [Signal, Signal] => {
     return [b, a];
   },

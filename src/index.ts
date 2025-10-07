@@ -1,2 +1,3 @@
-export { type Signal, nullSignal, copySignal } from './signal.js';
-export { Microchip, type Component } from './microchip.js';
+export { type Signal, nullSignal, copySignal } from './Signal.js';
+export { type Component } from './Component.js';
+export { Microchip } from './Microchip.js';

@@ -1,44 +1,44 @@
 import { describe, expect, test } from 'vitest';
 
-import { Microchip, Component, MicrochipState } from '../../src/microchip.js';
-import { Signal } from '../../src/signal.js';
-import { ComponentId } from '../../src/utils.js';
+import { Microchip, MicrochipState } from '../../src/Microchip.js';
+import { Signal } from '../../src/Signal.js';
+import { type Component, type ComponentId } from '../../src/Component.js';
 
 describe('Microchip class', async () => {
   const defaultGates: [ComponentId, Component][] = [
     [
-      'nand',
+      0,
       {
         nInputs: 2,
         nOutputs: 1,
-        state: null,
+        state: 'nand',
         style: {},
       },
     ],
     [
-      'and',
+      1,
       {
         nInputs: 2,
         nOutputs: 1,
-        state: null,
+        state: 'and',
         style: {},
       },
     ],
     [
-      'or',
+      2,
       {
         nInputs: 2,
         nOutputs: 1,
-        state: null,
+        state: 'or',
         style: {},
       },
     ],
     [
-      'nor',
+      3,
       {
         nInputs: 2,
         nOutputs: 1,
-        state: null,
+        state: 'nor',
         style: {},
       },
     ],
@@ -77,10 +77,11 @@ describe('Microchip class', async () => {
     [
       'sample2',
       {
-        entryComponent: 0,
+        entryComponent: 4,
         componentRegistry: new Map([
+          ...defaultGates,
           [
-            0,
+            4,
             {
               nInputs: 0,
               nOutputs: 0,
@@ -91,22 +92,67 @@ describe('Microchip class', async () => {
               style: {},
             },
           ],
-          ...defaultGates,
         ]),
       },
     ],
     [
       'sample3',
       {
-        entryComponent: 1,
+        entryComponent: 5,
         componentRegistry: new Map([
+          ...defaultGates,
           [
-            1,
+            4,
             {
               nInputs: 2,
               nOutputs: 1,
               state: {
-                components: ['nor', 0, 'or'],
+                components: [1, 2, 0],
+                connections: new Set<{
+                  source: Signal;
+                  destination: Signal;
+                }>([
+                  {
+                    source: { component: 'input', pin: 0 },
+                    destination: { component: 0, pin: 0 },
+                  },
+                  {
+                    source: { component: 'input', pin: 1 },
+                    destination: { component: 0, pin: 1 },
+                  },
+                  {
+                    source: { component: 'input', pin: 0 },
+                    destination: { component: 1, pin: 0 },
+                  },
+                  {
+                    source: { component: 'input', pin: 1 },
+                    destination: { component: 1, pin: 1 },
+                  },
+                  {
+                    source: { component: 0, pin: 0 },
+                    destination: { component: 2, pin: 0 },
+                  },
+                  {
+                    source: { component: 1, pin: 0 },
+                    destination: { component: 2, pin: 1 },
+                  },
+                  {
+                    source: { component: 2, pin: 0 },
+                    destination: { component: 'output', pin: 0 },
+                  },
+                ]),
+              },
+              style: {},
+            },
+          ],
+
+          [
+            5,
+            {
+              nInputs: 2,
+              nOutputs: 1,
+              state: {
+                components: [3, 4, 2],
                 connections: new Set<{
                   source: Signal;
                   destination: Signal;
@@ -144,150 +190,22 @@ describe('Microchip class', async () => {
               style: {},
             },
           ],
-          [
-            0,
-            {
-              nInputs: 2,
-              nOutputs: 1,
-              state: {
-                components: ['nand', 'or', 'and'],
-                connections: new Set<{
-                  source: Signal;
-                  destination: Signal;
-                }>([
-                  {
-                    source: { component: 'input', pin: 0 },
-                    destination: { component: 0, pin: 0 },
-                  },
-                  {
-                    source: { component: 'input', pin: 1 },
-                    destination: { component: 0, pin: 1 },
-                  },
-                  {
-                    source: { component: 'input', pin: 0 },
-                    destination: { component: 1, pin: 0 },
-                  },
-                  {
-                    source: { component: 'input', pin: 1 },
-                    destination: { component: 1, pin: 1 },
-                  },
-                  {
-                    source: { component: 0, pin: 0 },
-                    destination: { component: 2, pin: 0 },
-                  },
-                  {
-                    source: { component: 1, pin: 0 },
-                    destination: { component: 2, pin: 1 },
-                  },
-                  {
-                    source: { component: 2, pin: 0 },
-                    destination: { component: 'output', pin: 0 },
-                  },
-                ]),
-              },
-              style: {},
-            },
-          ],
-          ...defaultGates,
         ]),
       },
     ],
     [
       'sample4',
       {
-        entryComponent: 2,
+        entryComponent: 6,
         componentRegistry: new Map([
+          ...defaultGates.slice(0, 3), // Exclude nor gate
           [
-            2,
+            4,
             {
               nInputs: 2,
               nOutputs: 2,
               state: {
-                components: [1, 0],
-                connections: new Set<{
-                  source: Signal;
-                  destination: Signal;
-                }>([
-                  {
-                    source: { component: 'input', pin: 0 },
-                    destination: { component: 0, pin: 0 },
-                  },
-                  {
-                    source: { component: 'input', pin: 1 },
-                    destination: { component: 0, pin: 1 },
-                  },
-                  {
-                    source: { component: 0, pin: 0 },
-                    destination: { component: 1, pin: 0 },
-                  },
-                  {
-                    source: { component: null, pin: null },
-                    destination: { component: 1, pin: 1 },
-                  },
-                  {
-                    source: { component: 1, pin: 0 },
-                    destination: { component: 'output', pin: 0 },
-                  },
-                  {
-                    source: { component: 1, pin: 1 },
-                    destination: { component: 'output', pin: 1 },
-                  },
-                ]),
-              },
-              style: {},
-            },
-          ],
-          [
-            1,
-            {
-              nInputs: 2,
-              nOutputs: 1,
-              state: {
-                components: ['nand', 'or', 'and'],
-                connections: new Set<{
-                  source: Signal;
-                  destination: Signal;
-                }>([
-                  {
-                    source: { component: 'input', pin: 0 },
-                    destination: { component: 0, pin: 0 },
-                  },
-                  {
-                    source: { component: 'input', pin: 1 },
-                    destination: { component: 0, pin: 1 },
-                  },
-                  {
-                    source: { component: 'input', pin: 0 },
-                    destination: { component: 1, pin: 0 },
-                  },
-                  {
-                    source: { component: 'input', pin: 1 },
-                    destination: { component: 1, pin: 1 },
-                  },
-                  {
-                    source: { component: 0, pin: 0 },
-                    destination: { component: 2, pin: 0 },
-                  },
-                  {
-                    source: { component: 1, pin: 0 },
-                    destination: { component: 2, pin: 1 },
-                  },
-                  {
-                    source: { component: 2, pin: 0 },
-                    destination: { component: 'output', pin: 0 },
-                  },
-                ]),
-              },
-              style: {},
-            },
-          ],
-          [
-            0,
-            {
-              nInputs: 2,
-              nOutputs: 2,
-              state: {
-                components: ['nand', 'nand'],
+                components: [1, 1],
                 connections: new Set<{
                   source: Signal;
                   destination: Signal;
@@ -326,7 +244,91 @@ describe('Microchip class', async () => {
               },
             },
           ],
-          ...defaultGates.slice(0, 3), // Exclude nor gate
+          [
+            5,
+            {
+              nInputs: 2,
+              nOutputs: 1,
+              state: {
+                components: [1, 2, 0],
+                connections: new Set<{
+                  source: Signal;
+                  destination: Signal;
+                }>([
+                  {
+                    source: { component: 'input', pin: 0 },
+                    destination: { component: 0, pin: 0 },
+                  },
+                  {
+                    source: { component: 'input', pin: 1 },
+                    destination: { component: 0, pin: 1 },
+                  },
+                  {
+                    source: { component: 'input', pin: 0 },
+                    destination: { component: 1, pin: 0 },
+                  },
+                  {
+                    source: { component: 'input', pin: 1 },
+                    destination: { component: 1, pin: 1 },
+                  },
+                  {
+                    source: { component: 0, pin: 0 },
+                    destination: { component: 2, pin: 0 },
+                  },
+                  {
+                    source: { component: 1, pin: 0 },
+                    destination: { component: 2, pin: 1 },
+                  },
+                  {
+                    source: { component: 2, pin: 0 },
+                    destination: { component: 'output', pin: 0 },
+                  },
+                ]),
+              },
+              style: {},
+            },
+          ],
+
+          [
+            6,
+            {
+              nInputs: 2,
+              nOutputs: 2,
+              state: {
+                components: [5, 4],
+                connections: new Set<{
+                  source: Signal;
+                  destination: Signal;
+                }>([
+                  {
+                    source: { component: 'input', pin: 0 },
+                    destination: { component: 0, pin: 0 },
+                  },
+                  {
+                    source: { component: 'input', pin: 1 },
+                    destination: { component: 0, pin: 1 },
+                  },
+                  {
+                    source: { component: 0, pin: 0 },
+                    destination: { component: 1, pin: 0 },
+                  },
+                  {
+                    source: { component: null, pin: null },
+                    destination: { component: 1, pin: 1 },
+                  },
+                  {
+                    source: { component: 1, pin: 0 },
+                    destination: { component: 'output', pin: 0 },
+                  },
+                  {
+                    source: { component: 1, pin: 1 },
+                    destination: { component: 'output', pin: 1 },
+                  },
+                ]),
+              },
+              style: {},
+            },
+          ],
         ]),
       },
     ],

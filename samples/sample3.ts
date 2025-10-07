@@ -1,18 +1,23 @@
-import { Microchip, type Signal, nullSignal } from '../lib/index.js';
+import { Microchip, type Signal, nullSignal } from '../src/index.js';
 
 const microchip = new Microchip();
-const nand = microchip.registerGate('nand');
-const and = microchip.registerGate('and');
-const or = microchip.registerGate('or');
-const nor = microchip.registerGate('nor');
+const nand = microchip.registerGate('nand', 2, 1);
+const and = microchip.registerGate('and', 2, 1);
+const or = microchip.registerGate('or', 2, 1);
+const nor = microchip.registerGate('nor', 2, 1);
 
-const xor = microchip.registerComponent((a: Signal, b: Signal): [Signal] => {
-  return and(...nand(a, b), ...or(a, b));
-});
+const xor = microchip.registerComponentSingleOut(
+  (a: Signal, b: Signal): Signal => {
+    return and(nand(a, b), or(a, b));
+  },
+);
 
-const main = microchip.registerComponent((a: Signal, b: Signal): [Signal] => {
-  return or(...xor(...nor(a, b), b), nullSignal());
-});
+const main = microchip.registerComponentSingleOut(
+  (a: Signal, b: Signal): Signal => {
+    const x = xor(nor(a, b), b);
+    return or(x, nullSignal());
+  },
+);
 
 microchip.setEntryComponent(main);
 export default microchip;
