@@ -1,0 +1,146 @@
+{
+	"entryComponent": 3,
+	"componentRegistry": {
+		"dataType": "Map",
+		"value": [
+			[
+				0,
+				{
+					"nInputs": 2,
+					"nOutputs": 1,
+					"state": "and",
+					"style": {}
+				}
+			],
+			[
+				1,
+				{
+					"nInputs": 2,
+					"nOutputs": 1,
+					"state": "nand",
+					"style": {}
+				}
+			],
+			[
+				2,
+				{
+					"nInputs": 2,
+					"nOutputs": 1,
+					"state": "or",
+					"style": {}
+				}
+			],
+			[
+				3,
+				{
+					"nInputs": 2,
+					"nOutputs": 1,
+					"state": {
+						"components": [
+							0,
+							2,
+							1,
+							0
+						],
+						"connections": {
+							"dataType": "Set",
+							"value": [
+								{
+									"source": {
+										"component": "input",
+										"pin": 1
+									},
+									"destination": {
+										"component": 0,
+										"pin": 0
+									}
+								},
+								{
+									"source": {
+										"component": "input",
+										"pin": 1
+									},
+									"destination": {
+										"component": 0,
+										"pin": 1
+									}
+								},
+								{
+									"source": {
+										"component": "input",
+										"pin": 0
+									},
+									"destination": {
+										"component": 1,
+										"pin": 0
+									}
+								},
+								{
+									"source": {
+										"component": 0,
+										"pin": 0
+									},
+									"destination": {
+										"component": 1,
+										"pin": 1
+									}
+								},
+								{
+									"source": {
+										"component": "input",
+										"pin": 1
+									},
+									"destination": {
+										"component": 2,
+										"pin": 0
+									}
+								},
+								{
+									"source": {
+										"component": "input",
+										"pin": 0
+									},
+									"destination": {
+										"component": 2,
+										"pin": 1
+									}
+								},
+								{
+									"source": {
+										"component": 1,
+										"pin": 0
+									},
+									"destination": {
+										"component": 3,
+										"pin": 0
+									}
+								},
+								{
+									"source": {
+										"component": 2,
+										"pin": 0
+									},
+									"destination": {
+										"component": 3,
+										"pin": 1
+									}
+								},
+								{
+									"source": {
+										"component": 3,
+										"pin": 0
+									},
+									"destination": {
+										"component": "output",
+										"pin": 0
+									}
+								}
+							]
+						}
+					},
+					"style": {}
+				}
+			]
+		]
+	}
+}
