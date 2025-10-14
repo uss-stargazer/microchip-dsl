@@ -8,8 +8,8 @@ import {
   ComponentId,
   ComponentStyle,
   GateComponent,
-} from './Component.js';
-import { nullSignal, Signal } from './Signal.js';
+} from './component.js';
+import { nullSignal, Signal } from './signal.js';
 import { getNthFunctionNameUpStack, Tuple } from './utils.js';
 
 export interface MicrochipState {
@@ -57,7 +57,9 @@ export class Microchip {
     nInputs: I,
     nOutputs: O,
     style?: Partial<ComponentStyle>,
-  ): (...inputs: Tuple<Signal, I>) => ComponentFunctionReturn<O> {
+  ): (
+    ...inputs: Tuple<Signal, I> /* eslint-disable-line no-unused-vars */
+  ) => ComponentFunctionReturn<O> {
     this.componentRegistry.forEach((value: Component) => {
       if (value.state == name) {
         throw new Error(`Cannot register the same gate twice: ${name}`);
@@ -187,7 +189,7 @@ export class Microchip {
         ) as ChipComponent;
         if (!parentRegistryComponent) {
           throw new Error(
-            `ComponentId ${parentComponentId} (parent of ${name}) is not registered`,
+            `ComponentId ${parentComponentId} (parent of ${id}) is not registered`,
           );
         }
         componentIndex = parentRegistryComponent.state.components.push(id) - 1;
@@ -349,7 +351,7 @@ export class Microchip {
       packagedFunc,
       style,
     );
-    let unpackagedComponenetCaller: ComponentFunctionNoOut<I> = function (
+    const unpackagedComponenetCaller: ComponentFunctionNoOut<I> = function (
       ...inputs: Tuple<Signal, I>
     ): void {
       componentCaller(...inputs);

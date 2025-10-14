@@ -1,7 +1,9 @@
-import { type Signal } from './Signal.js';
+import { type Signal } from './signal.js';
 import { type Color, type Tuple } from './utils.js';
 
 export type ComponentId = number;
+
+/* eslint-disable no-unused-vars */
 
 // Generic/universal ComponentFunction
 export type ComponentFunction<I extends number, O extends number> = (
@@ -15,6 +17,8 @@ export type ComponentFunctionSingleOut<I extends number> = (
 export type ComponentFunctionNoOut<I extends number> = (
   ...inputs: Tuple<Signal, I>
 ) => void;
+
+/* eslint-enable no-unused-vars */
 
 export type ComponentFunctionReturn<N extends number> = N extends 0
   ? void

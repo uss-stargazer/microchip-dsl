@@ -18,6 +18,7 @@ export default tseslint.config(
     extends: [...tseslint.configs.recommended],
 
     files: ['**/*.ts', '**/*.mts'],
+    ignores: ['example.ts'],
 
     plugins: {
       '@typescript-eslint': tseslint.plugin,
@@ -25,6 +26,7 @@ export default tseslint.config(
 
     rules: {
       '@typescript-eslint/explicit-function-return-type': 'warn',
+      '@typescript-eslint/no-explicit-any': ['off'],
       'no-undef': 'warn',
       'no-unused-vars': 'warn',
     },
