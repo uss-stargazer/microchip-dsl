@@ -1,4 +1,4 @@
-import { ComponentIndex, ComponentPinIndex } from './Component.js';
+import { ComponentIndex, ComponentPinIndex } from './component.js';
 
 /**
  * The base object for digital signals. A *signal* cans have one source and multiple

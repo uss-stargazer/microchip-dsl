@@ -1,6 +1,6 @@
 {
   "name": "microchip-dsl",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Domain specific language for creating nested circuits (i.e. networks of components and connections)",
   "keywords": [],
   "license": "ISC",

@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 
-import { Microchip, MicrochipState } from '../../src/Microchip.js';
-import { Signal } from '../../src/Signal.js';
-import { type Component, type ComponentId } from '../../src/Component.js';
+import { Microchip, MicrochipState } from '../../src/microchip.js';
+import { Signal } from '../../src/signal.js';
+import { type Component, type ComponentId } from '../../src/component.js';
 
 describe('Microchip class', async () => {
   const defaultGates: [ComponentId, Component][] = [
