@@ -15,5 +15,5 @@ const main = microchip.registerChipSingleOut((a: Signal, b: Signal): Signal => {
   return or(x, nullSignal());
 });
 
-microchip.setEntryComponent(main);
+microchip.setRootComponent(main);
 export default microchip;

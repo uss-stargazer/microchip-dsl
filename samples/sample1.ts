@@ -9,5 +9,5 @@ const fancyPants = microchip.registerChip(
   { name: 'FancyPants' },
 );
 
-microchip.setEntryComponent(fancyPants);
+microchip.setRootComponent(fancyPants);
 export default microchip;

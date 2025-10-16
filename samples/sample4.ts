@@ -31,5 +31,5 @@ const wack = microchip.registerChip(
   },
 );
 
-microchip.setEntryComponent(wack);
+microchip.setRootComponent(wack);
 export default microchip;

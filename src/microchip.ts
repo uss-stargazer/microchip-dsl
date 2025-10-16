@@ -13,26 +13,26 @@ import { nullSignal, Signal } from './signal.js';
 import { getNthFunctionNameUpStack, Tuple } from './utils.js';
 
 export interface MicrochipState {
-  entryComponent: ComponentId;
+  rootComponent: ComponentId;
   componentRegistry: Map<ComponentId, Component>;
 }
 
 export class Microchip {
-  private entryComponent: ComponentId | undefined;
+  private rootComponent: ComponentId | undefined;
   private componentRegistry: Map<ComponentId, Component>;
   private disableModifications: { value: boolean } = { value: false }; // Part of a hacky hack to get the nOutputs by running the function without any elements doing anythin
 
   constructor() {
-    this.entryComponent = undefined;
+    this.rootComponent = undefined;
     this.componentRegistry = new Map();
   }
 
   public _getState(): MicrochipState {
-    if (this.entryComponent === undefined) {
-      throw new Error('Cannot get state with an undefined entry component');
+    if (this.rootComponent === undefined) {
+      throw new Error('Cannot get state with an undefined root component');
     }
     return {
-      entryComponent: this.entryComponent,
+      rootComponent: this.rootComponent,
       componentRegistry: this.componentRegistry,
     };
   }
@@ -369,9 +369,9 @@ export class Microchip {
    * Assign base component of the entire microchip. Whatever component (chip or
    * gate) *is* the microchip, if you think of the microchip as a single chip.
    *
-   * @param component The entry component
+   * @param component The root component
    */
-  public setEntryComponent<I extends number, O extends number>(
+  public setRootComponent<I extends number, O extends number>(
     component:
       | ComponentFunction<I, O>
       | ComponentFunctionSingleOut<I>
@@ -380,9 +380,9 @@ export class Microchip {
     const id = Number(component.name);
     if (!this.componentRegistry.has(id)) {
       throw new Error(
-        `Component '${id}' must be registered before it is set as entry component `,
+        `Component '${id}' must be registered before it is set as root component `,
       );
     }
-    this.entryComponent = id;
+    this.rootComponent = id;
   }
 }

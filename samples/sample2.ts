@@ -10,5 +10,5 @@ const oboo = microchip.registerChip((): [] => {
   return [];
 });
 
-microchip.setEntryComponent(oboo);
+microchip.setRootComponent(oboo);
 export default microchip;

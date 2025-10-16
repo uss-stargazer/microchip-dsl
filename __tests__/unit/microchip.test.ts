@@ -48,7 +48,7 @@ describe('Microchip class', async () => {
     [
       'sample1',
       {
-        entryComponent: 0,
+        rootComponent: 0,
         componentRegistry: new Map([
           [
             0,
@@ -77,7 +77,7 @@ describe('Microchip class', async () => {
     [
       'sample2',
       {
-        entryComponent: 4,
+        rootComponent: 4,
         componentRegistry: new Map([
           ...defaultGates,
           [
@@ -98,7 +98,7 @@ describe('Microchip class', async () => {
     [
       'sample3',
       {
-        entryComponent: 5,
+        rootComponent: 5,
         componentRegistry: new Map([
           ...defaultGates,
           [
@@ -196,7 +196,7 @@ describe('Microchip class', async () => {
     [
       'sample4',
       {
-        entryComponent: 5,
+        rootComponent: 5,
         componentRegistry: new Map([
           ...defaultGates.slice(0, 3), // Exclude nor gate
           [
@@ -339,7 +339,7 @@ describe('Microchip class', async () => {
       const microchip = sampleImport.default;
       expect(microchip).toBeInstanceOf(Microchip);
       const actualState = microchip._getState();
-      expect(actualState.entryComponent).toEqual(expectedState.entryComponent);
+      expect(actualState.rootComponent).toEqual(expectedState.rootComponent);
       expect(actualState.componentRegistry.size).toBe(
         expectedState.componentRegistry.size,
       );
