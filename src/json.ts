@@ -46,20 +46,24 @@ function microchipStateReviver(key: any, value: any): any {
   return value;
 }
 
+export function microchipStateToJsonStr(state: MicrochipState) {
+  return JSON.stringify(state, microchipStateReplacer);
+}
+
+export function microchipStateFromJsonStr(data: string) {
+  return JSON.parse(data, microchipStateReviver);
+}
+
 export function microchipStateToJson(
   state: MicrochipState,
   outputPath: string,
 ): void {
-  fs.writeFile(
-    outputPath,
-    JSON.stringify(state, microchipStateReplacer),
-    (err) => {
-      if (err) throw err;
-    },
-  );
+  fs.writeFile(outputPath, microchipStateToJsonStr(state), (err) => {
+    if (err) throw err;
+  });
 }
 
 export function microchipStateFromJson(inputPath: string): MicrochipState {
   const data = fs.readFileSync(inputPath);
-  return JSON.parse(data.toString(), microchipStateReviver);
+  return microchipStateFromJsonStr(data.toString());
 }
