@@ -1,6 +1,6 @@
 {
   "name": "microchip-dsl",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Domain specific language for creating nested circuits (i.e. networks of components and connections)",
   "keywords": [],
   "license": "ISC",
@@ -11,6 +11,12 @@
   },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "exports": {
+    ".": "./lib/index.js",
+    "./signal": "./lib/signal.js",
+    "./json": "./lib/json.js",
+    "./component": "./lib/component.js"
+  },
   "bin": {
     "build-microchip": "./bin/build-microchip.js"
   },
