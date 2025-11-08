@@ -115,7 +115,7 @@ export class Microchip {
 
       switch (nOutputs) {
         case 0:
-          return null;
+          return undefined;
         case 1:
           return {
             component: componentIndex,
@@ -131,7 +131,7 @@ export class Microchip {
       }
     };
 
-    Object.defineProperty(mockMethod, 'name', { value: name });
+    Object.defineProperty(mockMethod, 'name', { value: id.toString() });
     return mockMethod;
   }
 
