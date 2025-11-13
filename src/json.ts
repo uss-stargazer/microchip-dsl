@@ -6,16 +6,6 @@ import { Component } from './component.js';
 
 function microchipStateReplacer(key: any, value: any): any {
   if (value instanceof Map) {
-    if (key === 'componentRegistry') {
-      for (const component of value.values()) {
-        if (typeof component.state != 'string') {
-          component.state.connections = {
-            dataType: 'Set',
-            value: [...component.state.connections],
-          };
-        }
-      }
-    }
     return {
       dataType: 'Map',
       value: Array.from(value.entries()), // or with spread: value: [...value]
@@ -28,19 +18,6 @@ function microchipStateReplacer(key: any, value: any): any {
 function microchipStateReviver(key: any, value: any): any {
   if (typeof value === 'object' && value !== null) {
     if (value.dataType === 'Map') {
-      if (key === 'componentRegistry') {
-        /* eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars */
-        for (const [_, component] of value.value) {
-          if (
-            typeof component.state != 'string' &&
-            component.state.connections.dataType === 'Set'
-          ) {
-            component.state.connections = new Set(
-              component.state.connections.value,
-            );
-          }
-        }
-      }
       return new Map(value.value);
     }
   }
@@ -69,8 +46,8 @@ export function microchipStateFromJsonStr(data: string): MicrochipState {
           (typeof entry[1].state === 'string' ||
             (typeof entry[1].state.components === 'object' &&
               entry[1].state.components.every((id) => typeof id === 'number') &&
-              entry[1].state.connections instanceof Set &&
-              [...entry[1].state.connections.values()].every((connection) =>
+              Array.isArray(entry[1].state.connections) &&
+              entry[1].state.connections.every((connection) =>
                 [connection.source, connection.destination].every(
                   (signal) =>
                     typeof signal === 'object' &&

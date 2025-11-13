@@ -106,7 +106,7 @@ export class Microchip {
         componentIndex = parentRegistryComponent.state.components.push(id) - 1;
 
         inputs.forEach((input: Signal, idx: number) => {
-          parentRegistryComponent.state.connections.add({
+          parentRegistryComponent.state.connections.push({
             source: input,
             destination: { component: componentIndex!, pin: idx },
           });
@@ -160,14 +160,14 @@ export class Microchip {
     const componentRegistryInfo: ChipComponent = {
       nInputs: nInputs,
       nOutputs: nOutputs,
-      state: { components: [], connections: new Set() },
+      state: { components: [], connections: [] },
       style: { ...style },
     };
     this.componentRegistry.set(id, componentRegistryInfo);
 
     // We run the function which should add to the registry object's state at runtime
     func(...mockInputs).forEach((output: Signal, idx: number) => {
-      componentRegistryInfo.state.connections.add({
+      componentRegistryInfo.state.connections.push({
         source: output,
         destination: { component: 'output', pin: idx },
       });
@@ -194,7 +194,7 @@ export class Microchip {
         }
         componentIndex = parentRegistryComponent.state.components.push(id) - 1;
         inputs.forEach((input: Signal, idx: number) => {
-          parentRegistryComponent.state.connections.add({
+          parentRegistryComponent.state.connections.push({
             source: input,
             destination: { component: componentIndex!, pin: idx },
           });

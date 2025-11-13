@@ -46,10 +46,10 @@ export interface Component {
   state:
     | {
         components: ComponentId[];
-        connections: Set<{
+        connections: {
           source: Signal; // Source is a signal; this way it can be changed in the future and it will refect in this object (since its a obj)
           destination: Signal;
-        }>;
+        }[];
       }
     | string; // string if gate and the state will be defined at runtime (in fact that is the definition of a gate)
   style: Partial<ComponentStyle>;
