@@ -57,16 +57,16 @@ describe('Microchip class', async () => {
               nOutputs: 2,
               state: {
                 components: [],
-                connections: new Set([
-                  {
-                    source: { component: 'input', pin: 0 },
-                    destination: { component: 'output', pin: 1 },
-                  },
+                connections: [
                   {
                     source: { component: 'input', pin: 1 },
                     destination: { component: 'output', pin: 0 },
                   },
-                ]),
+                  {
+                    source: { component: 'input', pin: 0 },
+                    destination: { component: 'output', pin: 1 },
+                  },
+                ],
               },
               style: { name: 'FancyPants' },
             },
@@ -87,7 +87,7 @@ describe('Microchip class', async () => {
               nOutputs: 0,
               state: {
                 components: [],
-                connections: new Set(),
+                connections: [],
               },
               style: {},
             },
@@ -108,10 +108,7 @@ describe('Microchip class', async () => {
               nOutputs: 1,
               state: {
                 components: [0, 2, 1],
-                connections: new Set<{
-                  source: Signal;
-                  destination: Signal;
-                }>([
+                connections: [
                   {
                     source: { component: 'input', pin: 0 },
                     destination: { component: 0, pin: 0 },
@@ -140,7 +137,7 @@ describe('Microchip class', async () => {
                     source: { component: 2, pin: 0 },
                     destination: { component: 'output', pin: 0 },
                   },
-                ]),
+                ],
               },
               style: {},
             },
@@ -153,10 +150,7 @@ describe('Microchip class', async () => {
               nOutputs: 1,
               state: {
                 components: [3, 4, 2],
-                connections: new Set<{
-                  source: Signal;
-                  destination: Signal;
-                }>([
+                connections: [
                   {
                     source: { component: 'input', pin: 0 },
                     destination: { component: 0, pin: 0 },
@@ -185,7 +179,7 @@ describe('Microchip class', async () => {
                     source: { component: 2, pin: 0 },
                     destination: { component: 'output', pin: 0 },
                   },
-                ]),
+                ],
               },
               style: {},
             },
@@ -206,26 +200,22 @@ describe('Microchip class', async () => {
               nOutputs: 2,
               state: {
                 components: [0, 0],
-                connections: new Set<{
-                  source: Signal;
-                  destination: Signal;
-                }>([
+                connections: [
                   {
                     source: { component: 'input', pin: 0 },
                     destination: { component: 0, pin: 0 },
                   },
                   {
-                    source: { component: 'input', pin: 1 },
-                    destination: { component: 1, pin: 1 },
+                    source: { component: 1, pin: 0 },
+                    destination: { component: 0, pin: 1 },
                   },
-
                   {
                     source: { component: 0, pin: 0 },
                     destination: { component: 1, pin: 0 },
                   },
                   {
-                    source: { component: 1, pin: 0 },
-                    destination: { component: 0, pin: 1 },
+                    source: { component: 'input', pin: 1 },
+                    destination: { component: 1, pin: 1 },
                   },
                   {
                     source: { component: 0, pin: 0 },
@@ -235,7 +225,7 @@ describe('Microchip class', async () => {
                     source: { component: 1, pin: 0 },
                     destination: { component: 'output', pin: 1 },
                   },
-                ]),
+                ],
               },
               style: {
                 name: 'SR Latch',
@@ -251,10 +241,7 @@ describe('Microchip class', async () => {
               nOutputs: 1,
               state: {
                 components: [0, 2, 1],
-                connections: new Set<{
-                  source: Signal;
-                  destination: Signal;
-                }>([
+                connections: [
                   {
                     source: { component: 'input', pin: 0 },
                     destination: { component: 0, pin: 0 },
@@ -283,7 +270,7 @@ describe('Microchip class', async () => {
                     source: { component: 2, pin: 0 },
                     destination: { component: 'output', pin: 0 },
                   },
-                ]),
+                ],
               },
               style: {},
             },
@@ -296,10 +283,7 @@ describe('Microchip class', async () => {
               nOutputs: 2,
               state: {
                 components: [4, 3],
-                connections: new Set<{
-                  source: Signal;
-                  destination: Signal;
-                }>([
+                connections: [
                   {
                     source: { component: 'input', pin: 0 },
                     destination: { component: 0, pin: 0 },
@@ -324,7 +308,7 @@ describe('Microchip class', async () => {
                     source: { component: 1, pin: 1 },
                     destination: { component: 'output', pin: 1 },
                   },
-                ]),
+                ],
               },
               style: {},
             },

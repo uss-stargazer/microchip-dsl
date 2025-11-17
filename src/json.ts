@@ -4,7 +4,7 @@ import { Component } from './component.js';
 
 // parital credit: https://stackoverflow.com/a/56150320 (for replacer and reviver)
 
-function microchipStateReplacer(key: any, value: any): any {
+function microchipStateReplacer(_, value: any): any {
   if (value instanceof Map) {
     return {
       dataType: 'Map',
@@ -15,7 +15,7 @@ function microchipStateReplacer(key: any, value: any): any {
   }
 }
 
-function microchipStateReviver(key: any, value: any): any {
+function microchipStateReviver(_, value: any): any {
   if (typeof value === 'object' && value !== null) {
     if (value.dataType === 'Map') {
       return new Map(value.value);
